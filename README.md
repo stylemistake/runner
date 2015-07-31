@@ -2,9 +2,8 @@
 
 This is a simple task runner for Bash, heavily inspired by [Gulp].
 
-Although this script was thoroughly tested, it is still very alpha and can have
-bugs, be prepared for them. If you find any, please create an issue with a bug
-description.
+Although this script was thoroughly tested, it is still very alpha and may have
+bugs, so be prepared for them. If you find any, please create an issue.
 
 
 ## 1. Pre-requisites
@@ -13,7 +12,6 @@ Runner depends on:
 
 * `bash >=4.0`
 * `xargs`
-* `hash`
 
 These are very likely installed on your system by default. If not, let me
 know, we can replace some of the dependencies in the script to make life
@@ -33,7 +31,7 @@ project folder.
 Create an empty bash script (for example `tasks.sh`), which is going to be an
 entry point for the task runner. Add this to the beginning:
 
-```
+```bash
 #!/bin/bash
 cd `dirname ${0}`
 source runner.sh
@@ -43,7 +41,7 @@ If your `runner.sh` is placed somewhere else, change the path accordingly.
 
 Create some tasks:
 
-```
+```bash
 task_foo() {
     ## Do something...
 }
@@ -55,7 +53,7 @@ task_bar() {
 
 Then you can run a task by running this script with task names as arguments:
 
-```
+```bash
 $ bash tasks.sh foo bar
 [23:43:37.754] Starting 'foo'
 [23:43:37.755] Finished 'foo' (0)
@@ -65,7 +63,7 @@ $ bash tasks.sh foo bar
 
 You can define a default task:
 
-```
+```bash
 task_default() {
     ## Do something...
 }
@@ -75,7 +73,7 @@ It will run if no arguments were provided to the script.
 
 You can also change which task is default by using:
 
-```
+```bash
 runner_set_default_task <task_name>
 ```
 
@@ -86,7 +84,7 @@ way you can optimize the task flow for maximum concurrency.
 
 To run tasks sequentially, use:
 
-```
+```bash
 task_default() {
     runner_sequence foo bar
 
@@ -99,7 +97,7 @@ task_default() {
 
 To run tasks in parallel, use:
 
-```
+```bash
 task_default() {
     runner_parallel foo bar
 
@@ -115,7 +113,7 @@ task_default() {
 At some point of the task errors can occur, which you want to bubble up.
 There is a handy function for this:
 
-```
+```bash
 task_foo() {
     ...
     php composer.phar install
@@ -128,7 +126,7 @@ If you are running tasks in parallel, you may want to stop execution of all
 parallel tasks when error bubbles through `runner_bubble`. To do this, call
 this function before running parallel tasks:
 
-```
+```bash
 task_default() {
     runner_break_parallel
     runner_parallel foo bar
@@ -141,7 +139,7 @@ task_default() {
 This example is a real world script, which prepares Laravel project environment
 (`utils/bootstrap.sh`):
 
-```
+```bash
 #!/bin/bash
 cd `dirname ${0}`
 source runner.sh
@@ -149,22 +147,6 @@ source runner.sh
 cd ..
 
 NPM_GLOBAL_PACKAGES="gulp bower node-gyp"
-
-if ! runner_is_defined php; then
-    runner_log "Error: You don't have php installed!"
-    exit 1
-fi
-
-if ! runner_is_defined wget; then
-    runner_log "Error: You don't have wget installed!"
-    exit 1
-fi
-
-if ! runner_is_defined npm node; then
-    runner_log "Error: You don't have npm or node installed!"
-    runner_log "Refer to README.md on how to install node using nvm."
-    exit 1
-fi
 
 task_php() {
     if ! [ -e "composer.phar" ]; then
@@ -183,7 +165,7 @@ task_php() {
 }
 
 task_node() {
-    if [ -e "$HOME/.nvm/nvm.sh" ]; then
+    if [ -e "${HOME}/.nvm/nvm.sh" ]; then
         if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
             npm install -g ${NPM_GLOBAL_PACKAGES}
             runner_bubble ${?}
@@ -205,8 +187,8 @@ task_default() {
     runner_parallel php node
 
     if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
-        runner_log "Error: Couldn't install some global npm packages."
-        runner_log "Please install them manually: 'npm install -g ${NPM_GLOBAL_PACKAGES}'."
+        runner_log "Please install these packages manually:"
+        runner_log "'npm install -g ${NPM_GLOBAL_PACKAGES}'"
         exit 1
     fi
 }
