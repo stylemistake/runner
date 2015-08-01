@@ -135,6 +135,19 @@ task_default() {
 }
 ```
 
+### 3.4. Flags
+
+All flags you pass to the script are passed on to your tasks. Flags are
+arguments beginning with a dash (`-`).
+
+```bash
+$ bash tasks.sh foo --production
+
+task_foo() {
+    echo ${@} # --production
+}
+```
+
 
 ## 4. Example
 
@@ -203,7 +216,7 @@ task_default() {
 
 **Q:** Isn't Bash itself fundamentally a task runner?
 
-**A:** No, it's not. Bash is a generic scripting language for unix systems.
+**A:** No, it is not. Bash is a generic scripting language for unix.
 You can write a script which can handle some basic stuff. But if it does a
 lot of *independent* tasks, then you have to write boilerplate code to run
 them individually or in parallel. This library makes it very easy to do

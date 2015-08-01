@@ -5,27 +5,22 @@
 ## of the script
 runner_self=`pwd`/`basename ${0}`
 runner_default_task="default"
-runner_current_task=""
-runner_tasks=""
-runner_args=""
 
 ## Trap EXIT signal to bootstrap the runner.
 ## Works like a charm - your script ends, tasks start to run.
 ## Trap resets after bootstrapping.
 trap "[[ ${?} -eq 0 ]] && runner_bootstrap" EXIT
 
-## Determine current task passed to script
-## It searches for the first non-flag argument and sets it as a current task.
-## All other arguments get filtered into `runner_args`
-## TODO: Not implemented yet
-runner_tasks="${@}"
-# for arg in ${@}; do
-#     if [[ -z ${runner_current_task} ]]; then
-#         runner_current_task="${arg}"
-#     else
-#         runner_args="${runner_args} ${arg}"
-#     fi
-# done
+## Split arguments into tasks and flags.
+## All flags are then passed on to tasks.
+## E.g. --production
+for arg in ${@}; do
+    if [[ ${arg} == -* ]]; then
+        runner_flags="${runner_flags} ${arg}"
+    else
+        runner_tasks="${runner_tasks} ${arg}"
+    fi
+done
 
 runner_log() {
     local date=`date +%T.%N`
@@ -86,7 +81,7 @@ runner_break_parallel() {
 runner_run_task() {
     runner_current_task=${1}
     runner_log "Starting '${1}'"
-    task_${1}
+    task_${1} ${runner_flags}
     local exit_code=${?}
     runner_log "Finished '${1}' (${exit_code})"
     return ${exit_code}
@@ -104,7 +99,7 @@ runner_sequence() {
 ## Works by launching script itself with `xargs`
 runner_parallel() {
     runner_is_task_defined_verbose ${@} || return 1
-    echo ${@} | xargs -n1 -P0 bash ${runner_self}
+    echo ${@} | xargs -n1 -P0 bash ${runner_self} ${runner_flags}
 }
 
 ## Bubble up non-zero exit-codes
