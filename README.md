@@ -1,9 +1,11 @@
 # Task runner for Bash
 
-This is a simple task runner for Bash, heavily inspired by [Gulp].
+This is a simple, lightweight task runner for Bash.
 
-Although this script was thoroughly tested, it is still very alpha and may have
-bugs, so be prepared for them. If you find any, please create an issue.
+It is inspired by [Gulp] version 4, although very different by design.
+
+This script is still early and incomplete. If you find any bugs, let me
+know in the issues section of Github.
 
 
 ## 1. Pre-requisites
@@ -11,11 +13,11 @@ bugs, so be prepared for them. If you find any, please create an issue.
 Runner depends on:
 
 * `bash >=4.0`
-* `xargs`
+* `coreutils`
+* `findutils` (`xargs`)
+* `grep`
 
-These are very likely installed on your system by default. If not, let me
-know, we can replace some of the dependencies in the script to make life
-easier for everyone.
+These are very likely to be already installed on your system.
 
 
 ## 2. Installation
@@ -136,8 +138,8 @@ task_default() {
 
 ## 4. Example
 
-This example is a real world script, which prepares Laravel project environment
-(`utils/bootstrap.sh`):
+This example is a real world script, which automates setup of a Laravel project
+(the script is `./utils/bootstrap.sh`):
 
 ```bash
 #!/bin/bash
@@ -195,6 +197,44 @@ task_default() {
 ```
 
 
+## 5. WHY?
+
+![Why this exists?][derp_why]
+
+**Q:** Isn't Bash itself fundamentally a task runner?
+
+**A:** No, it's not. Bash is a generic scripting language for unix systems.
+You can write a script which can handle some basic stuff. But if it does a
+lot of *independent* tasks, then you have to write boilerplate code to run
+them individually or in parallel. This library makes it very easy to do
+without writing much code.
+
+**Q:** Why use this and not `make` / `ant` / ...?
+
+**A:** For a couple of reasons:
+
+* Sometimes it is just inappropriate to use them:
+    * They are meant to be used for build automation. If you're doing just
+    a bunch of scripts with it, you're using 1% of these tools' features.
+    * It's a yet another dependency. If you're already using `artisan` and
+    `gulp` in your project, `make` will just add more confusion.
+* This library is very lightweight, runs straight away, and it is designed to
+be bundled with your project source code.
+* It is a good tool to automate a project setup while you got nothing else,
+but `bash`. You could do this in plain `bash`, but this library just makes
+it go concurrent. It is especially useful for CI.
+
+I would also like to mention [Manuel], which is similarly a task runner for
+`bash`. It doesn't do concurrency, just adds more complexity (in my humble
+opinion). Feel free to check it out, too.
+
+
+## 6. Contribution
+
+Got a suggestion for a feature? Feel free to open a ticket in the issue
+section or make a pull request.
+
+
 ## Contacts
 
 Email: [stylemistake@gmail.com]
@@ -202,5 +242,8 @@ Email: [stylemistake@gmail.com]
 Web: [stylemistake.com]
 
 [gulp]: https://github.com/gulpjs/gulp
+[issues]: https://github.com/stylemistake/bash-task-runner/issues
+[derp_why]: http://cdn.alltheragefaces.com/img/faces/jpg/neutral-whyyyyy.jpg
+[manuel]: https://github.com/ShaneKilkelly/manuel
 [stylemistake.com]: http://stylemistake.com
 [stylemistake@gmail.com]: mailto:stylemistake@gmail.com
