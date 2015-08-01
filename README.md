@@ -1,11 +1,11 @@
 # Task runner for Bash
 
-This is a simple, lightweight task runner for Bash.
+Simple, lightweight task runner for Bash.
 
-It is inspired by [Gulp] version 4, although very different by design.
+Inspired by [Gulp] version 4, although very different by design.
 
-This script is still early and incomplete. If you find any bugs, let me
-know in the issues section of Github.
+Script is still early and incomplete. If you find any bugs, let me know in the
+issues section of Github.
 
 
 ## 1. Pre-requisites
@@ -30,16 +30,14 @@ project folder.
 
 ### 3.1. Basics
 
-Create an empty bash script (for example `tasks.sh`), which is going to be an
-entry point for the task runner. Add this to the beginning:
+Create an empty bash script (e.g. `tasks.sh`), which is going to be an entry
+point for the task runner. Add this to the beginning:
 
 ```bash
 #!/bin/bash
 cd `dirname ${0}`
 source runner.sh
 ```
-
-If your `runner.sh` is placed somewhere else, change the path accordingly.
 
 Create some tasks:
 
@@ -53,7 +51,7 @@ task_bar() {
 }
 ```
 
-Then you can run a task by running this script with task names as arguments:
+You can run a task by running this script with task names as arguments:
 
 ```bash
 $ bash tasks.sh foo bar
@@ -63,7 +61,8 @@ $ bash tasks.sh foo bar
 [23:43:37.757] Finished 'bar' (0)
 ```
 
-You can define a default task:
+You can define a default task. It will run if no arguments were provided to
+the script:
 
 ```bash
 task_default() {
@@ -71,9 +70,7 @@ task_default() {
 }
 ```
 
-It will run if no arguments were provided to the script.
-
-You can also change which task is default by using:
+You can change which task is default:
 
 ```bash
 runner_set_default_task <task_name>
@@ -81,15 +78,14 @@ runner_set_default_task <task_name>
 
 ### 3.2. Task chaining
 
-Tasks can launch other tasks in two ways: sequentially and in parallel. This
-way you can optimize the task flow for maximum concurrency.
+Tasks can launch other tasks in two ways: *sequentially* and in *parallel*.
+This way you can optimize the task flow for maximum concurrency.
 
 To run tasks sequentially, use:
 
 ```bash
 task_default() {
     runner_sequence foo bar
-
     ## [23:50:33.194] Starting 'foo'
     ## [23:50:33.195] Finished 'foo' (0)
     ## [23:50:33.196] Starting 'bar'
@@ -102,7 +98,6 @@ To run tasks in parallel, use:
 ```bash
 task_default() {
     runner_parallel foo bar
-
     ## [23:50:33.194] Starting 'foo'
     ## [23:50:33.194] Starting 'bar'
     ## [23:50:33.198] Finished 'foo' (0)
@@ -112,8 +107,7 @@ task_default() {
 
 ### 3.3. Error handling
 
-At some point of the task errors can occur, which you want to bubble up.
-There is a handy function for this:
+If you want a task to stop on error, use `runner_bubble`:
 
 ```bash
 task_foo() {
@@ -137,8 +131,8 @@ task_default() {
 
 ### 3.4. Flags
 
-All flags you pass to the script are passed on to your tasks. Flags are
-arguments beginning with a dash (`-`).
+All flags you pass to the script are passed to your tasks. Flags are arguments
+beginning with a dash.
 
 ```bash
 $ bash tasks.sh foo --production
@@ -151,8 +145,8 @@ task_foo() {
 
 ## 4. Example
 
-This example is a real world script, which automates setup of a Laravel project
-(the script is `./utils/bootstrap.sh`):
+This example is a real world script, which automates setup of a Laravel
+project:
 
 ```bash
 #!/bin/bash
@@ -233,19 +227,19 @@ without writing much code.
     `gulp` in your project, `make` will just add more confusion.
 * This library is very lightweight, runs straight away, and it is designed to
 be bundled with your project source code.
-* It is a good tool to automate a project setup while you got nothing else,
+* It is a good tool to automate a project setup when you got nothing else,
 but `bash`. You could do this in plain `bash`, but this library just makes
 it go concurrent. It is especially useful for CI.
 
-I would also like to mention [Manuel], which is similarly a task runner for
-`bash`. It doesn't do concurrency, just adds more complexity (in my humble
-opinion). Feel free to check it out, too.
+I would also like to mention [Manuel], which is a similar task runner for
+`bash`. It doesn't do concurrency though, just adds more complexity (in my
+humble opinion). Feel free to check it out, too.
 
 
 ## 6. Contribution
 
-Got a suggestion for a feature? Feel free to open a ticket in the issue
-section or make a pull request.
+Got a suggestion for a feature? Feel free to open a feature request in the
+issue section or make a pull request.
 
 
 ## Contacts
