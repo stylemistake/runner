@@ -9,7 +9,7 @@ runner_default_task="default"
 ## Trap EXIT signal to bootstrap the runner.
 ## Works like a charm - your script ends, tasks start to run.
 ## Trap resets after bootstrapping.
-trap "[[ ${?} -eq 0 ]] && runner_bootstrap" EXIT
+trap '[[ ${?} -eq 0 ]] && runner_bootstrap' EXIT
 
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
@@ -104,7 +104,7 @@ runner_parallel() {
 
 ## Bubble up non-zero exit-codes
 runner_bubble() {
-    if [ ${1} -ne 0 ]; then
+    if [[ ${1} -ne 0 ]]; then
         runner_log "Error: Task '${runner_current_task}' bubbled with exit code ${1}."
         ## Exit with 255 to break parallel execution in `xargs`
         if [[ -n ${runner_break_parallel} ]]; then
