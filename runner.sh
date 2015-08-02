@@ -25,7 +25,13 @@ done
 ## Logs a message with a timestamp
 runner_log() {
     local date=`date +%T.%N`
-    echo "[${date:0:12}] ${@}"
+    echo [`runner_colorize "${date:0:12}" gray`] "${@}"
+}
+
+runner_log_error() {
+    local date=`date +%T.%N`
+    echo [`runner_colorize "${date:0:12}" gray`] \
+        `runner_colorize "${@}" red`
 }
 
 ## Returns unix time in ms
@@ -68,6 +74,29 @@ runner_pretty_ms() {
     echo ${result}
 }
 
+runner_colorize() {
+    case ${2} in
+        black)        echo -en "\e[30m" ;;
+        red)          echo -en "\e[31m" ;;
+        green)        echo -en "\e[32m" ;;
+        brown)        echo -en "\e[33m" ;;
+        blue)         echo -en "\e[34m" ;;
+        purple)       echo -en "\e[35m" ;;
+        cyan)         echo -en "\e[36m" ;;
+        light_gray)   echo -en "\e[37m" ;;
+        gray)         echo -en "\e[90m" ;;
+        light_red)    echo -en "\e[91m" ;;
+        light_green)  echo -en "\e[92m" ;;
+        light_brown)  echo -en "\e[93m" ;;
+        light_blue)   echo -en "\e[94m" ;;
+        light_purple) echo -en "\e[95m" ;;
+        light_cyan)   echo -en "\e[96m" ;;
+        white)        echo -en "\e[97m" ;;
+        reset)        echo -en "\e[0m" ;;
+    esac
+    echo -e "${1}\e[0m"
+}
+
 ## List all defined functions beginning with `task_`
 runner_get_defined_tasks() {
     for task in `typeset -F | grep -o '\stask_[A-Za-z0-9_-]*'`; do
@@ -79,7 +108,7 @@ runner_get_defined_tasks() {
 runner_show_defined_tasks() {
     runner_log "Available tasks:"
     for task in `runner_get_defined_tasks`; do
-        runner_log "  ${task}"
+        runner_log "  `runner_colorize ${task} cyan`"
     done
 }
 
@@ -101,8 +130,7 @@ runner_is_task_defined() {
 runner_is_task_defined_verbose() {
     for task in ${@}; do
         if ! runner_is_defined task_${task}; then
-            runner_log "Error: Task '${task}' is not defined!"
-            runner_show_defined_tasks
+            runner_log_error "Task '${task}' is not defined!"
             return 1
         fi
     done
@@ -121,13 +149,15 @@ runner_break_parallel() {
 
 runner_run_task() {
     runner_current_task=${1}
-    runner_log "Starting '${1}'"
+    runner_log "Starting '`runner_colorize "${1}" cyan`'"
     local time_start=`runner_time`
     task_${1} ${runner_flags}
     local exit_code=${?}
     local time_end=`runner_time`
     local time_diff=`runner_pretty_ms $((time_end - time_start))`
-    runner_log "Finished '${1}' after ${time_diff} (${exit_code})"
+    runner_log "Finished '`runner_colorize "${1}" cyan`'" \
+        "after `runner_colorize "${time_diff}" purple`" \
+        "(${exit_code})"
     return ${exit_code}
 }
 
@@ -149,10 +179,10 @@ runner_parallel() {
 ## Bubble up non-zero exit-codes
 runner_bubble() {
     if [[ ${1} -ne 0 ]]; then
-        runner_log "Error: Task '${runner_current_task}' bubbled with exit code ${1}."
+        runner_log_error "Task '${runner_current_task}' bubbled with exit code ${1}."
         ## Exit with 255 to break parallel execution in `xargs`
         if [[ -n ${runner_break_parallel} ]]; then
-            runner_log "Stopping parallel execution..."
+            runner_log_error "Stopping parallel execution..."
             exit 255
         else
             exit ${1}
