@@ -22,9 +22,50 @@ for arg in ${@}; do
     fi
 done
 
+## Logs a message with a timestamp
 runner_log() {
     local date=`date +%T.%N`
     echo "[${date:0:12}] ${@}"
+}
+
+## Returns unix time in ms
+runner_time() {
+    echo $((`date +%s%N` / 1000000))
+}
+
+## Returns a human readable duration in ms
+runner_pretty_ms() {
+    local ms=${1}
+    local result
+    ## If zero or nothing
+    if [[ -z ${ms} || ${ms} -lt 1 ]]; then
+        echo 0 ms
+        return
+    ## Only ms
+    elif [[ ${ms} -lt 1000 ]]; then
+        echo ${ms} ms
+        return
+    ## Only seconds with trimmed ms point
+    elif [[ ${ms} -lt 60000 ]]; then
+        result=$((ms / 1000 % 60)).$((ms % 1000))
+        echo ${result:0:4} s
+        return
+    fi
+    local parsed
+    ## Days
+    parsed=$((ms / 86400000))
+    [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} d"
+    ## Hours
+    parsed=$((ms / 3600000 % 24))
+    [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} h"
+    ## Minutes
+    parsed=$((ms / 60000 % 60))
+    [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} m"
+    ## Seconds
+    parsed=$((ms / 1000 % 60))
+    [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} s"
+    ## Output result
+    echo ${result}
 }
 
 ## List all defined functions beginning with `task_`
@@ -81,9 +122,12 @@ runner_break_parallel() {
 runner_run_task() {
     runner_current_task=${1}
     runner_log "Starting '${1}'"
+    local time_start=`runner_time`
     task_${1} ${runner_flags}
     local exit_code=${?}
-    runner_log "Finished '${1}' (${exit_code})"
+    local time_end=`runner_time`
+    local time_diff=`runner_pretty_ms $((time_end - time_start))`
+    runner_log "Finished '${1}' after ${time_diff} (${exit_code})"
     return ${exit_code}
 }
 
