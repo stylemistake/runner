@@ -32,6 +32,14 @@ runner_log_error() {
     runner_log `runner_colorize "${*}" red`
 }
 
+runner_log_warning() {
+    runner_log `runner_colorize "${*}" yellow`
+}
+
+runner_log_success() {
+    runner_log `runner_colorize "${*}" green`
+}
+
 ## Returns unix time in ms
 runner_time() {
     echo $((`date +%s%N` / 1000000))
@@ -85,12 +93,11 @@ runner_colorize() {
         gray)         echo -en "\e[90m" ;;
         light_red)    echo -en "\e[91m" ;;
         light_green)  echo -en "\e[92m" ;;
-        light_brown)  echo -en "\e[93m" ;;
+        yellow)       echo -en "\e[93m" ;;
         light_blue)   echo -en "\e[94m" ;;
         light_purple) echo -en "\e[95m" ;;
         light_cyan)   echo -en "\e[96m" ;;
         white)        echo -en "\e[97m" ;;
-        reset)        echo -en "\e[0m" ;;
     esac
     echo -e "${1}\e[0m"
 }
