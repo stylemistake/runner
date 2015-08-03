@@ -163,33 +163,32 @@ NPM_GLOBAL_PACKAGES="gulp bower node-gyp"
 
 task_php() {
     if ! [ -e "composer.phar" ]; then
-        wget http://getcomposer.org/composer.phar
-        runner_bubble ${?}
+        wget http://getcomposer.org/composer.phar || return
     fi
 
-    php composer.phar install
-    runner_bubble ${?}
+    php composer.phar install || return
 
     if ! [ -e ".env" ]; then
         cp .env.example .env
         php artisan key:generate
-        runner_bubble ${?}
     fi
 }
 
 task_node() {
     if [ -e "${HOME}/.nvm/nvm.sh" ]; then
         if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
-            npm install -g ${NPM_GLOBAL_PACKAGES}
-            runner_bubble ${?}
+            npm install -g ${NPM_GLOBAL_PACKAGES} || return
         fi
     fi
-
     runner_parallel node_{npm,bower}
 }
 
 task_node_npm() {
-    npm install
+    if [[ "${1}" == "--virtualbox" ]]; then
+        local npm_options="--no-bin-links"
+        runner_log_warning "Using npm options: ${npm_options}"
+    fi
+    npm install ${npm_options}
 }
 
 task_node_bower() {
@@ -197,12 +196,11 @@ task_node_bower() {
 }
 
 task_default() {
-    runner_parallel php node
+    runner_parallel php node || return
 
     if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
-        runner_log "Please install these packages manually:"
+        runner_log_warning "Please install these packages manually:"
         runner_log "'npm install -g ${NPM_GLOBAL_PACKAGES}'"
-        exit 1
     fi
 }
 ```
