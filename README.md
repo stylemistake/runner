@@ -73,7 +73,7 @@ task_default() {
 You can change which task is default:
 
 ```bash
-runner_set_default_task <task_name>
+runner_set_default_task foo
 ```
 
 ### 3.2. Task chaining
@@ -107,27 +107,31 @@ task_default() {
 
 ### 3.3. Error handling
 
-If you want a task to stop on error, use `runner_bubble`:
+For simple tasks, you don't need to do anything:
+
+```bash
+task_foo() {
+    php composer.phar install
+}
+```
+
+If you want a task to fail in the middle, you can add a conditional return. It
+will return the exit code of the failing command (if it fails):
 
 ```bash
 task_foo() {
     ...
-    php composer.phar install
-    runner_bubble ${?}
+    php composer.phar install || return
     ...
 }
 ```
 
-If you are running tasks in parallel, you may want to stop execution of all
-parallel tasks when error bubbles through `runner_bubble`. To do this, call
-this function before running parallel tasks:
+If the failing task was a part of a sequence, the whole sequence fails.
 
-```bash
-task_default() {
-    runner_break_parallel
-    runner_parallel foo bar
-}
-```
+By default, parallel tasks are not terminated if any of the tasks in the batch
+fail. Runner lets them finish running, and then returns a non-zero code. If you
+want the whole batch to terminate when a task fails, call
+`runner_break_parallel` before running any tasks.
 
 ### 3.4. Flags
 

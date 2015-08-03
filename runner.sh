@@ -25,13 +25,11 @@ done
 ## Logs a message with a timestamp
 runner_log() {
     local date=`date +%T.%N`
-    echo [`runner_colorize "${date:0:12}" gray`] "${@}"
+    echo [`runner_colorize "${date:0:12}" gray`] "${*}"
 }
 
 runner_log_error() {
-    local date=`date +%T.%N`
-    echo [`runner_colorize "${date:0:12}" gray`] \
-        `runner_colorize "${@}" red`
+    runner_log `runner_colorize "${*}" red`
 }
 
 ## Returns unix time in ms
@@ -137,16 +135,11 @@ runner_is_task_defined_verbose() {
     return 0
 }
 
-runner_is_subprocess() {
-    [[ -n ${runner_subprocess} ]]
-}
-
 runner_set_default_task() {
     runner_default_task=${1}
 }
 
-## Export a variable to change the behaviour of `runner_bubble`
-## which breaks execution of `xargs` on non-zero exits.
+## Breaks execution of `xargs` on non-zero task exits.
 runner_break_parallel() {
     export runner_break_parallel=1
 }
@@ -159,10 +152,18 @@ runner_run_task() {
     local exit_code=${?}
     local time_end=`runner_time`
     local time_diff=`runner_pretty_ms $((time_end - time_start))`
+    if [[ ${exit_code} -ne 0 ]]; then
+        runner_log_error "Task '${runner_current_task}'" \
+            "failed after ${time_diff} (${exit_code})"
+        ## Exit with 255 to break parallel execution in `xargs`
+        if [[ -n ${runner_break_parallel} ]]; then
+            runner_log_error "Stopping parallel execution..."
+            exit 255
+        fi
+        return ${exit_code}
+    fi
     runner_log "Finished '`runner_colorize "${1}" cyan`'" \
-        "after `runner_colorize "${time_diff}" purple`" \
-        "(${exit_code})"
-    return ${exit_code}
+        "after `runner_colorize "${time_diff}" purple`"
 }
 
 ## Run tasks sequentially.
@@ -181,36 +182,22 @@ runner_parallel() {
         bash ${runner_self} ${runner_flags}
 }
 
-## Bubble up non-zero exit-codes
-runner_bubble() {
-    if [[ ${1} -ne 0 ]]; then
-        runner_log_error "Task '${runner_current_task}' bubbled with exit code ${1}."
-        ## Exit with 255 to break parallel execution in `xargs`
-        if [[ -n ${runner_break_parallel} ]]; then
-            runner_log_error "Stopping parallel execution..."
-            exit 255
-        else
-            exit ${1}
-        fi
-    fi
-}
-
 ## Starts the initial task.
 runner_bootstrap() {
     ## Clear a trap we set up earlier
     trap - EXIT
-    if runner_is_subprocess; then
+    if [[ -n ${runner_subprocess} ]]; then
         runner_sequence ${runner_tasks}
         exit ${?}
     fi
     ## Run tasks
     if [[ -n ${runner_tasks} ]]; then
-        runner_sequence ${runner_tasks}
-        return ${?}
+        runner_sequence ${runner_tasks} || exit ${?}
+        return 0
     fi
     if runner_is_task_defined ${runner_default_task}; then
-        runner_run_task ${runner_default_task}
-        return ${?}
+        runner_run_task ${runner_default_task} || exit ${?}
+        return 0
     fi
     runner_log "Nothing to run."
     runner_show_defined_tasks
