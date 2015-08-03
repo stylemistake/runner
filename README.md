@@ -5,7 +5,7 @@ Simple, lightweight task runner for Bash.
 Inspired by [Gulp] version 4, although very different by design.
 
 Script is still early and incomplete. If you find any bugs, let me know in the
-issues section of Github.
+[issues section][issues] of this repository.
 
 
 ## 1. Pre-requisites
@@ -14,7 +14,6 @@ Runner depends on:
 
 * `bash >=4.0`
 * `coreutils`
-* `findutils` (`xargs`)
 * `grep`
 
 These are very likely to be already installed on your system.
@@ -56,9 +55,9 @@ You can run a task by running this script with task names as arguments:
 ```bash
 $ bash tasks.sh foo bar
 [23:43:37.754] Starting 'foo'
-[23:43:37.755] Finished 'foo' (0)
+[23:43:37.755] Finished 'foo' after 1 ms
 [23:43:37.756] Starting 'bar'
-[23:43:37.757] Finished 'bar' (0)
+[23:43:37.757] Finished 'bar' after 1 ms
 ```
 
 You can define a default task. It will run if no arguments were provided to
@@ -87,9 +86,9 @@ To run tasks sequentially, use:
 task_default() {
     runner_sequence foo bar
     ## [23:50:33.194] Starting 'foo'
-    ## [23:50:33.195] Finished 'foo' (0)
+    ## [23:50:33.195] Finished 'foo' after 1 ms
     ## [23:50:33.196] Starting 'bar'
-    ## [23:50:33.198] Finished 'bar' (0)
+    ## [23:50:33.198] Finished 'bar' after 2 ms
 }
 ```
 
@@ -100,23 +99,15 @@ task_default() {
     runner_parallel foo bar
     ## [23:50:33.194] Starting 'foo'
     ## [23:50:33.194] Starting 'bar'
-    ## [23:50:33.198] Finished 'foo' (0)
-    ## [23:50:33.198] Finished 'bar' (0)
+    ## [23:50:33.196] Finished 'foo' after 2 ms
+    ## [23:50:33.196] Finished 'bar' after 2 ms
 }
 ```
 
 ### 3.3. Error handling
 
-For simple tasks, you don't need to do anything:
-
-```bash
-task_foo() {
-    php composer.phar install
-}
-```
-
-If you want a task to fail in the middle, you can add a conditional return. It
-will return the exit code of the failing command (if it fails):
+Sometimes you need to stop the whole task if some of the commands fails.
+You can achieve this with a simple conditional return:
 
 ```bash
 task_foo() {
@@ -126,17 +117,16 @@ task_foo() {
 }
 ```
 
-If the failing task was a part of a sequence, the whole sequence fails.
+If a failed task was a part of a sequence, the whole sequence fails. Same
+applies to the tasks running in parallel.
 
-By default, parallel tasks are not terminated if any of the tasks in the batch
-fail. Runner lets them finish running, and then returns a non-zero code. If you
-want the whole batch to terminate when a task fails, call
-`runner_break_parallel` before running any tasks.
+The difference in `runner_parallel` is if an error occurs in one of the tasks,
+other tasks continue to run. After all tasks finish, it returns `0` if
+none have failed, `41` if some have failed and `42` if all have failed.
 
 ### 3.4. Flags
 
-All flags you pass to the script are passed to your tasks. Flags are arguments
-beginning with a dash.
+All flags you pass to the script are passed to your tasks.
 
 ```bash
 $ bash tasks.sh foo --production
@@ -240,8 +230,8 @@ humble opinion). Feel free to check it out, too.
 
 ## 6. Contribution
 
-Got a suggestion for a feature? Feel free to open a feature request in the
-issue section or make a pull request.
+Got a suggestion for a feature? Feel free to open a feature request in
+[issues section][issues].
 
 
 ## Contacts

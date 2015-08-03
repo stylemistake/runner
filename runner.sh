@@ -146,11 +146,6 @@ runner_set_default_task() {
     runner_default_task=${1}
 }
 
-## Breaks execution of `xargs` on non-zero task exits.
-runner_break_parallel() {
-    export runner_break_parallel=1
-}
-
 runner_run_task() {
     runner_current_task=${1}
     runner_log "Starting '`runner_colorize "${1}" cyan`'..."
@@ -162,11 +157,6 @@ runner_run_task() {
     if [[ ${exit_code} -ne 0 ]]; then
         runner_log_error "Task '${runner_current_task}'" \
             "failed after ${time_diff} (${exit_code})"
-        ## Exit with 255 to break parallel execution in `xargs`
-        if [[ -n ${runner_break_parallel} ]]; then
-            runner_log_error "Stopping parallel execution..."
-            exit 255
-        fi
         return ${exit_code}
     fi
     runner_log "Finished '`runner_colorize "${1}" cyan`'" \
@@ -185,18 +175,21 @@ runner_sequence() {
 ## Works by launching script itself with `xargs`
 runner_parallel() {
     runner_is_task_defined_verbose ${@} || return 1
-    echo ${@} | runner_subprocess=1 xargs -n1 -P0 \
-        bash ${runner_self} ${runner_flags}
+    local -a pid
+    local exit_code=0
+    for task in ${@}; do
+        runner_run_task ${task} & pid+=(${!})
+    done
+    for pid in ${pid[@]}; do
+        wait ${pid} || exit_code=41
+    done
+    return ${exit_code}
 }
 
 ## Starts the initial task.
 runner_bootstrap() {
     ## Clear a trap we set up earlier
     trap - EXIT
-    if [[ -n ${runner_subprocess} ]]; then
-        runner_sequence ${runner_tasks}
-        exit ${?}
-    fi
     ## Run tasks
     if [[ -n ${runner_tasks} ]]; then
         runner_sequence ${runner_tasks} || exit ${?}
