@@ -153,7 +153,7 @@ runner_break_parallel() {
 
 runner_run_task() {
     runner_current_task=${1}
-    runner_log "Starting '`runner_colorize "${1}" cyan`'"
+    runner_log "Starting '`runner_colorize "${1}" cyan`'..."
     local time_start=`runner_time`
     task_${1} ${runner_flags}
     local exit_code=${?}
