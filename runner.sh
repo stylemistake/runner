@@ -137,6 +137,10 @@ runner_is_task_defined_verbose() {
     return 0
 }
 
+runner_is_subprocess() {
+    [[ -n ${runner_subprocess} ]]
+}
+
 runner_set_default_task() {
     runner_default_task=${1}
 }
@@ -173,7 +177,8 @@ runner_sequence() {
 ## Works by launching script itself with `xargs`
 runner_parallel() {
     runner_is_task_defined_verbose ${@} || return 1
-    echo ${@} | xargs -n1 -P0 bash ${runner_self} ${runner_flags}
+    echo ${@} | runner_subprocess=1 xargs -n1 -P0 \
+        bash ${runner_self} ${runner_flags}
 }
 
 ## Bubble up non-zero exit-codes
@@ -194,14 +199,18 @@ runner_bubble() {
 runner_bootstrap() {
     ## Clear a trap we set up earlier
     trap - EXIT
-    ## Run tasks
-    if [[ -n ${runner_tasks} ]]; then
+    if runner_is_subprocess; then
         runner_sequence ${runner_tasks}
         exit ${?}
     fi
+    ## Run tasks
+    if [[ -n ${runner_tasks} ]]; then
+        runner_sequence ${runner_tasks}
+        return ${?}
+    fi
     if runner_is_task_defined ${runner_default_task}; then
         runner_run_task ${runner_default_task}
-        exit ${?}
+        return ${?}
     fi
     runner_log "Nothing to run."
     runner_show_defined_tasks
