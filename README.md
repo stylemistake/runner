@@ -14,7 +14,6 @@ Runner depends on:
 
 * `bash >=4.0`
 * `coreutils`
-* `grep`
 
 These are very likely to be already installed on your system.
 

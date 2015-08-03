@@ -1,15 +1,15 @@
 #!/bin/bash
 
-## Determine the path to currently executing script
-## TODO: Find a way to not to require the cd in front of `source` part
-## of the script
-runner_self=`pwd`/`basename ${0}`
+## Default task (settable with `runner_set_default_task`)
 runner_default_task="default"
 
 ## Trap EXIT signal to bootstrap the runner.
 ## Works like a charm - your script ends, tasks start to run.
 ## Trap resets after bootstrapping.
 trap '[[ ${?} -eq 0 ]] && runner_bootstrap' EXIT
+
+## Expand aliases
+shopt -s expand_aliases
 
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
@@ -28,6 +28,7 @@ runner_log() {
     echo [`runner_colorize "${date:0:12}" gray`] "${*}"
 }
 
+## Variations of log with colors
 runner_log_error() {
     runner_log `runner_colorize "${*}" red`
 }
@@ -40,14 +41,12 @@ runner_log_success() {
     runner_log `runner_colorize "${*}" green`
 }
 
-## Returns unix time in ms
-runner_time() {
-    echo $((`date +%s%N` / 1000000))
-}
+## Returns unix time in nanoseconds
+alias runner_time='date +%s%N'
 
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
-    local ms=${1}
+    local ms=$((${1} / 1000000)) # nano to millis
     local result
     ## If zero or nothing
     if [[ -z ${ms} || ${ms} -lt 1 ]]; then
@@ -104,20 +103,26 @@ runner_colorize() {
 
 ## List all defined functions beginning with `task_`
 runner_get_defined_tasks() {
-    for task in `typeset -F | grep -o '\stask_[A-Za-z0-9_-]*'`; do
-        echo ${task:5}
+    local IFS=$'\n'
+    for task in `typeset -F`; do
+        [[ ${task} == 'declare -f task_'* ]] && echo ${task:16}
     done
 }
 
 ## Fancy wrapper for `runner_get_defined_tasks`
 runner_show_defined_tasks() {
     runner_log "Available tasks:"
-    for task in `runner_get_defined_tasks`; do
+    local tasks=`runner_get_defined_tasks`
+    if [[ -z ${tasks} ]]; then
+        runner_log "  `runner_colorize "<none>" light_gray`"
+        return
+    fi
+    for task in ${tasks}; do
         runner_log "  `runner_colorize ${task} cyan`"
     done
 }
 
-## Checks if a program is accessible from current $PATH
+## Checks if program is accessible from current $PATH
 runner_is_defined() {
     hash ${@} 2>/dev/null
     return ${?}
@@ -147,7 +152,6 @@ runner_set_default_task() {
 }
 
 runner_run_task() {
-    runner_current_task=${1}
     runner_log "Starting '`runner_colorize "${1}" cyan`'..."
     local time_start=`runner_time`
     task_${1} ${runner_flags}
@@ -155,7 +159,7 @@ runner_run_task() {
     local time_end=`runner_time`
     local time_diff=`runner_pretty_ms $((time_end - time_start))`
     if [[ ${exit_code} -ne 0 ]]; then
-        runner_log_error "Task '${runner_current_task}'" \
+        runner_log_error "Task '${1}'" \
             "failed after ${time_diff} (${exit_code})"
         return ${exit_code}
     fi
@@ -172,7 +176,6 @@ runner_sequence() {
 }
 
 ## Run tasks in parallel.
-## Works by launching script itself with `xargs`
 runner_parallel() {
     runner_is_task_defined_verbose ${@} || return 1
     local -a pid
