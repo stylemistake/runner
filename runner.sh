@@ -175,14 +175,15 @@ runner_sequence() {
 runner_parallel() {
     runner_is_task_defined_verbose ${@} || return 1
     local -a pid
-    local exit_code=0
+    local -i exits=0
     for task in ${@}; do
         runner_run_task ${task} & pid+=(${!})
     done
     for pid in ${pid[@]}; do
-        wait ${pid} || exit_code=41
+        wait ${pid} || exits+=1
     done
-    return ${exit_code}
+    [[ ${exits} -eq 0 ]] && return 0
+    [[ ${exits} -lt ${#} ]] && return 41 || return 42
 }
 
 ## Starts the initial task.
