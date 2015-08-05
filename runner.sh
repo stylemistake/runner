@@ -46,7 +46,7 @@ alias runner_time='date +%s%N'
 
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
-    local ms=$((${1} / 1000000)) # nano to millis
+    local -i ms=$((${1} / 1000000)) # nano to millis
     local result
     ## If zero or nothing
     if [[ -z ${ms} || ${ms} -lt 1 ]]; then
@@ -62,7 +62,7 @@ runner_pretty_ms() {
         echo ${result:0:4} s
         return
     fi
-    local parsed
+    local -i parsed
     ## Days
     parsed=$((ms / 86400000))
     [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} d"
@@ -126,16 +126,12 @@ runner_show_defined_tasks() {
 ## Checks if program is accessible from current $PATH
 runner_is_defined() {
     hash ${@} 2>/dev/null
-    return ${?}
 }
 
 runner_is_task_defined() {
     for task in ${@}; do
-        if ! runner_is_defined task_${task}; then
-            return 1
-        fi
+        runner_is_defined task_${task} || return
     done
-    return 0
 }
 
 runner_is_task_defined_verbose() {
@@ -145,7 +141,6 @@ runner_is_task_defined_verbose() {
             return 1
         fi
     done
-    return 0
 }
 
 runner_set_default_task() {
@@ -154,10 +149,10 @@ runner_set_default_task() {
 
 runner_run_task() {
     runner_log "Starting '`runner_colorize "${1}" cyan`'..."
-    local time_start=`runner_time`
+    local -i time_start=`runner_time`
     task_${1} ${runner_flags}
     local exit_code=${?}
-    local time_end=`runner_time`
+    local -i time_end=`runner_time`
     local time_diff=`runner_pretty_ms $((time_end - time_start))`
     if [[ ${exit_code} -ne 0 ]]; then
         runner_log_error "Task '${1}'" \
@@ -170,9 +165,9 @@ runner_run_task() {
 
 ## Run tasks sequentially.
 runner_sequence() {
-    runner_is_task_defined_verbose ${@} || return 1
+    runner_is_task_defined_verbose ${@} || return
     for task in ${@}; do
-        runner_run_task ${task} || return ${?}
+        runner_run_task ${task} || return
     done
 }
 
@@ -196,11 +191,11 @@ runner_bootstrap() {
     trap - EXIT
     ## Run tasks
     if [[ -n ${runner_tasks} ]]; then
-        runner_sequence ${runner_tasks} || exit ${?}
+        runner_sequence ${runner_tasks} || exit
         return 0
     fi
     if runner_is_task_defined ${runner_default_task}; then
-        runner_run_task ${runner_default_task} || exit ${?}
+        runner_run_task ${runner_default_task} || exit
         return 0
     fi
     runner_log "Nothing to run."
