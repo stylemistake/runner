@@ -79,26 +79,27 @@ runner_pretty_ms() {
     echo ${result}
 }
 
+declare -A runner_colors=(
+    [black]='\e[30m'
+    [red]='\e[31m'
+    [green]='\e[32m'
+    [brown]='\e[33m'
+    [blue]='\e[34m'
+    [purple]='\e[35m'
+    [cyan]='\e[36m'
+    [light_gray]='\e[37m'
+    [gray]='\e[90m'
+    [light_red]='\e[91m'
+    [light_green]='\e[92m'
+    [yellow]='\e[93m'
+    [light_blue]='\e[94m'
+    [light_purple]='\e[95m'
+    [light_cyan]='\e[96m'
+    [white]='\e[97m'
+)
+
 runner_colorize() {
-    case ${2} in
-        black)        echo -en "\e[30m" ;;
-        red)          echo -en "\e[31m" ;;
-        green)        echo -en "\e[32m" ;;
-        brown)        echo -en "\e[33m" ;;
-        blue)         echo -en "\e[34m" ;;
-        purple)       echo -en "\e[35m" ;;
-        cyan)         echo -en "\e[36m" ;;
-        light_gray)   echo -en "\e[37m" ;;
-        gray)         echo -en "\e[90m" ;;
-        light_red)    echo -en "\e[91m" ;;
-        light_green)  echo -en "\e[92m" ;;
-        yellow)       echo -en "\e[93m" ;;
-        light_blue)   echo -en "\e[94m" ;;
-        light_purple) echo -en "\e[95m" ;;
-        light_cyan)   echo -en "\e[96m" ;;
-        white)        echo -en "\e[97m" ;;
-    esac
-    echo -e "${1}\e[0m"
+    echo -e "${runner_colors[$2]}${1}\e[0m"
 }
 
 ## List all defined functions beginning with `task_`
