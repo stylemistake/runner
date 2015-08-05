@@ -2,7 +2,7 @@
 
 Simple, lightweight task runner for Bash.
 
-Inspired by [Gulp] version 4, although very different by design.
+Inspired by [Gulp] version 4.
 
 Script is still early and incomplete. If you find any bugs, let me know in the
 [issues section][issues] of this repository.
@@ -201,11 +201,12 @@ task_default() {
 
 **Q:** Isn't Bash itself fundamentally a task runner?
 
-**A:** No, it is not. Bash is a generic scripting language for unix.
-You can write a script which can handle some basic stuff. But if it does a
-lot of *independent* tasks, then you have to write boilerplate code to run
-them individually or in parallel. This library makes it very easy to do
-without writing much code.
+**A:** No, bash is a scripting language, not a task runner. Same story is with
+Grunt/Gulp for Javascript - you can "run tasks" in vanilla JS without any
+frameworks, but it costs you maintainability, redundancy, etc. My library is
+just a very thin layer around bash with functions that make sense for task
+running with concurrency in mind. You still got the power of bash in your
+hands.
 
 **Q:** Why use this and not `make` / `ant` / ...?
 
@@ -219,18 +220,20 @@ without writing much code.
 * This library is very lightweight, runs straight away, and it is designed to
 be bundled with your project source code.
 * It is a good tool to automate a project setup when you got nothing else,
-but `bash`. You could do this in plain `bash`, but this library just makes
-it go concurrent. It is especially useful for CI.
+but `bash`.
+* If you already know `bash`, there is no new syntax to learn!
+* It's as fast as `make` with `-j` flag if using parallel execution of tasks.
+Even single core systems may benefit from this, especially if tasks are more
+IO oriented.
 
 I would also like to mention [Manuel], which is a similar task runner for
-`bash`. It doesn't do concurrency though, just adds more complexity (in my
-humble opinion). Feel free to check it out, too.
+`bash`. It is similar in many ways (although lacks concurrency). Feel free to
+check it out, too.
 
 
 ## 6. Contribution
 
-Got a suggestion for a feature? Feel free to open a feature request in
-[issues section][issues].
+Got a suggestion for a feature? Feel free to open a [feature request][issues].
 
 
 ## Contacts
