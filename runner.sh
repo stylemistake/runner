@@ -194,11 +194,11 @@ runner_bootstrap() {
     trap - EXIT
     ## Run tasks
     if [[ -n ${runner_tasks} ]]; then
-        runner_sequence ${runner_tasks} || exit
+        runner_sequence ${runner_tasks} || exit ${?}
         return 0
     fi
     if runner_is_task_defined ${runner_default_task}; then
-        runner_run_task ${runner_default_task} || exit
+        runner_run_task ${runner_default_task} || exit ${?}
         return 0
     fi
     runner_log "Nothing to run."
