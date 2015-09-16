@@ -12,7 +12,7 @@ Script is still early and incomplete. If you find any bugs, let me know in the
 
 Runner depends on:
 
-* `bash >=4.0`
+* `bash 3`
 * `coreutils`
 
 These are very likely to be already installed on your system.
@@ -20,21 +20,20 @@ These are very likely to be already installed on your system.
 
 ## 2. Installation
 
-Simply download the `runner.sh` file and place it somewhere inside your
-project folder.
-
+```bash
+npm install --save-dev bash-task-runner
+```
 
 ## 3. Usage
 
 ### 3.1. Basics
 
-Create an empty bash script (e.g. `tasks.sh`), which is going to be an entry
+Create an empty bash script (e.g. `tasks.sh`) in the project root folder, which is going to be an entry
 point for the task runner. Add this to the beginning:
 
 ```bash
 #!/bin/bash
-cd `dirname ${0}`
-source runner.sh
+source $(dirname $0)/node_modules/bash-task-runner/index.sh
 ```
 
 Create some tasks:
@@ -54,9 +53,9 @@ You can run a task by running this script with task names as arguments:
 ```bash
 $ bash tasks.sh foo bar
 [23:43:37.754] Starting 'foo'
-[23:43:37.755] Finished 'foo' after 1 ms
+[23:43:37.755] Finished 'foo' after 1 s
 [23:43:37.756] Starting 'bar'
-[23:43:37.757] Finished 'bar' after 1 ms
+[23:43:37.757] Finished 'bar' after 1 s
 ```
 
 You can define a default task. It will run if no arguments were provided to
@@ -85,9 +84,9 @@ To run tasks sequentially, use:
 task_default() {
     runner_sequence foo bar
     ## [23:50:33.194] Starting 'foo'
-    ## [23:50:33.195] Finished 'foo' after 1 ms
+    ## [23:50:33.195] Finished 'foo' after 1 s
     ## [23:50:33.196] Starting 'bar'
-    ## [23:50:33.198] Finished 'bar' after 2 ms
+    ## [23:50:33.198] Finished 'bar' after 2 s
 }
 ```
 
@@ -98,8 +97,8 @@ task_default() {
     runner_parallel foo bar
     ## [23:50:33.194] Starting 'foo'
     ## [23:50:33.194] Starting 'bar'
-    ## [23:50:33.196] Finished 'foo' after 2 ms
-    ## [23:50:33.196] Finished 'bar' after 2 ms
+    ## [23:50:33.196] Finished 'foo' after 2 s
+    ## [23:50:33.196] Finished 'bar' after 2 s
 }
 ```
 
