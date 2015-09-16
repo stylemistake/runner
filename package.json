@@ -1,0 +1,31 @@
+{
+  "name": "bash-task-runner",
+  "version": "1.0.0",
+  "description": "bash task runner for npm",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rofrol/bash-task-runner.git"
+  },
+  "keywords": [
+    "bash",
+    "task",
+    "runner"
+  ],
+  "author": [
+      {
+          "name": "stylemistake"
+      },
+      {
+          "name": "Roman Frołow"
+      }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rofrol/bash-task-runner/issues"
+  },
+  "homepage": "https://github.com/rofrol/bash-task-runner#readme"
+}
