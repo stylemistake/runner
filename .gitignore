@@ -4,4 +4,5 @@
 !.editorconfig
 !LICENSE.md
 !README.md
-!runner.sh
+!index.sh
+!package.json
