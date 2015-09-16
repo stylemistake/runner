@@ -24,83 +24,75 @@ done
 
 ## Logs a message with a timestamp
 runner_log() {
-    local date=`date +%T.%N`
-    echo [${runner_colors[gray]}${date:0:12}${runner_colors[reset]}] "${*}"
+    local date=$(date "+%T.%S")
+    echo [$(runner_colors 'gray')${date:0:12}$(runner_colors 'reset')] "${*}"
 }
 
 ## Variations of log with colors
 runner_log_error() {
-    runner_log ${runner_colors[red]}"${*}"${runner_colors[reset]}
+    runner_log $(runner_colors 'red')"${*}"$(runner_colors 'reset')
 }
 
 runner_log_warning() {
-    runner_log ${runner_colors[yellow]}"${*}"${runner_colors[reset]}
+    runner_log $(runner_colors 'yellow')"${*}"$(runner_colors 'reset')
 }
 
 runner_log_success() {
-    runner_log ${runner_colors[green]}"${*}"${runner_colors[reset]}
+    runner_log $(runner_colors 'green')"${*}"$(runner_colors 'reset')
 }
 
 ## Returns unix time in nanoseconds
-alias runner_time='date +%s%N'
+alias runner_time='date +"%s%S"'
 
-## Returns a human readable duration in ms
-runner_pretty_ms() {
-    local -i ms=$((${1} / 1000000)) # nano to millis
+## Returns a human readable duration in s
+runner_pretty_s() {
+    local -i ss=${1}
     local result
     ## If zero or nothing
-    if [[ -z ${ms} || ${ms} -lt 1 ]]; then
-        echo 0 ms
-        return
-    ## Only ms
-    elif [[ ${ms} -lt 1000 ]]; then
-        echo ${ms} ms
-        return
-    ## Only seconds with trimmed ms point
-    elif [[ ${ms} -lt 60000 ]]; then
-        result=$((ms / 1000 % 60)).$((ms % 1000))
-        echo ${result:0:4} s
+    if [[ -z ${s} || ${s} -lt 1 ]]; then
+        echo 0 s
         return
     fi
     local -i parsed
     ## Days
-    parsed=$((ms / 86400000))
+    parsed=$((s / 86400000))
     [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} d"
     ## Hours
-    parsed=$((ms / 3600000 % 24))
+    parsed=$((s / 3600000 % 24))
     [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} h"
     ## Minutes
-    parsed=$((ms / 60000 % 60))
+    parsed=$((s / 60000 % 60))
     [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} m"
     ## Seconds
-    parsed=$((ms / 1000 % 60))
+    parsed=$((s))
     [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} s"
     ## Output result
     echo ${result}
 }
 
-declare -A runner_colors=(
-    [black]=`echo -e '\e[30m'`
-    [red]=`echo -e '\e[31m'`
-    [green]=`echo -e '\e[32m'`
-    [brown]=`echo -e '\e[33m'`
-    [blue]=`echo -e '\e[34m'`
-    [purple]=`echo -e '\e[35m'`
-    [cyan]=`echo -e '\e[36m'`
-    [light_gray]=`echo -e '\e[37m'`
-    [gray]=`echo -e '\e[90m'`
-    [light_red]=`echo -e '\e[91m'`
-    [light_green]=`echo -e '\e[92m'`
-    [yellow]=`echo -e '\e[93m'`
-    [light_blue]=`echo -e '\e[94m'`
-    [light_purple]=`echo -e '\e[95m'`
-    [light_cyan]=`echo -e '\e[96m'`
-    [white]=`echo -e '\e[97m'`
-    [reset]=`echo -e '\e[0m'`
-)
-
+function runner_colors() {
+    case $1 in
+    'black') echo -e '\e[30m';;
+    'red') echo -e '\e[31m';;
+    'green') echo -e '\e[32m';;
+    'brown') echo -e '\e[33m';;
+    'blue') echo -e '\e[34m';;
+    'purple') echo -e '\e[35m';;
+    'cyan') echo -e '\e[36m';;
+    'light_gray') echo -e '\e[37m';;
+    'gray') echo -e '\e[90m';;
+    'light_red') echo -e '\e[91m';;
+    'light_green') echo -e '\e[92m';;
+    'yellow') echo -e '\e[93m';;
+    'light_blue') echo -e '\e[94m';;
+    'light_purple') echo -e '\e[95m';;
+    'light_cyan') echo -e '\e[96m';;
+    'white') echo -e '\e[97m';;
+    'reset') echo -e '\e[0m';;
+    esac
+}
 runner_colorize() {
-    echo "${runner_colors[$2]}${1}${runner_colors[reset]}"
+    echo "$(runner_colors $2)${1}$(runner_colors 'reset')"
 }
 
 ## List all defined functions beginning with `task_`
@@ -116,11 +108,11 @@ runner_show_defined_tasks() {
     runner_log "Available tasks:"
     local tasks=`runner_get_defined_tasks`
     if [[ -z ${tasks} ]]; then
-        runner_log "  ${runner_colors[light_gray]}<none>${runner_colors[reset]}"
+        runner_log "  $(runner_colors 'light_gray')<none>$(runner_colors 'reset')"
         return
     fi
     for task in ${tasks}; do
-        runner_log "  ${runner_colors[cyan]}${task}${runner_colors[reset]}"
+        runner_log "  $(runner_colors 'cyan')${task}$(runner_colors 'reset')"
     done
 }
 
@@ -149,20 +141,20 @@ runner_set_default_task() {
 }
 
 runner_run_task() {
-    local task_color="${runner_colors[cyan]}${1}${runner_colors[reset]}"
+    local task_color="$(runner_colors 'cyan')${1}$(runner_colors 'reset')"
     runner_log "Starting '${task_color}'..."
     local -i time_start=`runner_time`
     task_${1} ${runner_flags}
     local exit_code=${?}
     local -i time_end=`runner_time`
-    local time_diff=`runner_pretty_ms $((time_end - time_start))`
+    local time_diff=`runner_pretty_s $((time_end - time_start))`
     if [[ ${exit_code} -ne 0 ]]; then
         runner_log_error "Task '${1}'" \
             "failed after ${time_diff} (${exit_code})"
         return ${exit_code}
     fi
     runner_log "Finished '${task_color}" \
-        "after ${runner_colors[purple]}${time_diff}${runner_colors[reset]}"
+        "after $(runner_colors 'purple')${time_diff}$(runner_colors 'reset')"
 }
 
 ## Run tasks sequentially.
