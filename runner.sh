@@ -24,8 +24,8 @@ done
 
 ## Logs a message with a timestamp
 runner_log() {
-    local date=`date +%T.%N`
-    echo [${runner_colors[gray]}${date:0:12}${runner_colors[reset]}] "${*}"
+    local date=`date +%T`
+    echo [${runner_colors[gray]}${date:0:8}${runner_colors[reset]}] "${*}"
 }
 
 ## Variations of log with colors
@@ -41,12 +41,17 @@ runner_log_success() {
     runner_log ${runner_colors[green]}"${*}"${runner_colors[reset]}
 }
 
-## Returns unix time in nanoseconds
-alias runner_time='date +%s%N'
+## Test if date supports showing nanoseconds
+if [[ `date +%3N 2>/dev/null` =~ ^[0-9]+$ ]]; then
+    ## Returns unix time in ms
+    alias runner_time='date +%s%3N'
+else
+    alias runner_time='date +%s000'
+fi
 
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
-    local -i ms=$((${1} / 1000000)) # nano to millis
+    local -i ms=${1}
     local result
     ## If zero or nothing
     if [[ -z ${ms} || ${ms} -lt 1 ]]; then
