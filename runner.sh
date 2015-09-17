@@ -42,7 +42,7 @@ runner_log_success() {
 }
 
 ## Test if date supports showing nanoseconds
-if [[ `date +%3N 2>/dev/null` =~ ^[0-9]+$ ]]; then
+if echo `date +%3N 2>/dev/null` | grep -E '^[0-9]+$' > /dev/null; then
     ## Returns unix time in ms
     alias runner_time='date +%s%3N'
 else
