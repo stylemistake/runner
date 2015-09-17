@@ -25,20 +25,20 @@ done
 ## Logs a message with a timestamp
 runner_log() {
     local date=`date +%T`
-    echo [${runner_colors[gray]}${date:0:8}${runner_colors[reset]}] "${*}"
+    echo [`runner_colorize gray ${date:0:8}`] "${*}"
 }
 
 ## Variations of log with colors
 runner_log_error() {
-    runner_log ${runner_colors[red]}"${*}"${runner_colors[reset]}
+    runner_log `runner_colorize red "${*}"`
 }
 
 runner_log_warning() {
-    runner_log ${runner_colors[yellow]}"${*}"${runner_colors[reset]}
+    runner_log `runner_colorize yellow "${*}"`
 }
 
 runner_log_success() {
-    runner_log ${runner_colors[green]}"${*}"${runner_colors[reset]}
+    runner_log `runner_colorize green "${*}"`
 }
 
 ## Test if date supports showing nanoseconds
@@ -84,28 +84,32 @@ runner_pretty_ms() {
     echo ${result}
 }
 
-declare -A runner_colors=(
-    [black]=`echo -e '\e[30m'`
-    [red]=`echo -e '\e[31m'`
-    [green]=`echo -e '\e[32m'`
-    [brown]=`echo -e '\e[33m'`
-    [blue]=`echo -e '\e[34m'`
-    [purple]=`echo -e '\e[35m'`
-    [cyan]=`echo -e '\e[36m'`
-    [light_gray]=`echo -e '\e[37m'`
-    [gray]=`echo -e '\e[90m'`
-    [light_red]=`echo -e '\e[91m'`
-    [light_green]=`echo -e '\e[92m'`
-    [yellow]=`echo -e '\e[93m'`
-    [light_blue]=`echo -e '\e[94m'`
-    [light_purple]=`echo -e '\e[95m'`
-    [light_cyan]=`echo -e '\e[96m'`
-    [white]=`echo -e '\e[97m'`
-    [reset]=`echo -e '\e[0m'`
-)
+runner_color() {
+    case ${1} in
+        'black')        echo -en '\e[30m' ;;
+        'red')          echo -en '\e[31m' ;;
+        'green')        echo -en '\e[32m' ;;
+        'brown')        echo -en '\e[33m' ;;
+        'blue')         echo -en '\e[34m' ;;
+        'purple')       echo -en '\e[35m' ;;
+        'cyan')         echo -en '\e[36m' ;;
+        'light_gray')   echo -en '\e[37m' ;;
+        'gray')         echo -en '\e[90m' ;;
+        'light_red')    echo -en '\e[91m' ;;
+        'light_green')  echo -en '\e[92m' ;;
+        'yellow')       echo -en '\e[93m' ;;
+        'light_blue')   echo -en '\e[94m' ;;
+        'light_purple') echo -en '\e[95m' ;;
+        'light_cyan')   echo -en '\e[96m' ;;
+        'white')        echo -en '\e[97m' ;;
+        'reset')        echo -en '\e[0m' ;;
+    esac
+}
 
 runner_colorize() {
-    echo "${runner_colors[$2]}${1}${runner_colors[reset]}"
+    local color=${1}
+    shift
+    echo "`runner_color ${color}`${@}`runner_color reset`"
 }
 
 ## List all defined functions beginning with `task_`
@@ -121,11 +125,11 @@ runner_show_defined_tasks() {
     runner_log "Available tasks:"
     local tasks=`runner_get_defined_tasks`
     if [[ -z ${tasks} ]]; then
-        runner_log "  ${runner_colors[light_gray]}<none>${runner_colors[reset]}"
+        runner_log "  $(runner_colorize light_gray '<none>')"
         return
     fi
     for task in ${tasks}; do
-        runner_log "  ${runner_colors[cyan]}${task}${runner_colors[reset]}"
+        runner_log "  $(runner_colorize cyan ${task})"
     done
 }
 
@@ -154,7 +158,7 @@ runner_set_default_task() {
 }
 
 runner_run_task() {
-    local task_color="${runner_colors[cyan]}${1}${runner_colors[reset]}"
+    local task_color=`runner_colorize cyan ${1}`
     runner_log "Starting '${task_color}'..."
     local -i time_start=`runner_time`
     task_${1} ${runner_flags}
@@ -166,8 +170,8 @@ runner_run_task() {
             "failed after ${time_diff} (${exit_code})"
         return ${exit_code}
     fi
-    runner_log "Finished '${task_color}" \
-        "after ${runner_colors[purple]}${time_diff}${runner_colors[reset]}"
+    runner_log "Finished '${task_color}'" \
+        "after $(runner_colorize purple ${time_diff})"
 }
 
 ## Run tasks sequentially.
