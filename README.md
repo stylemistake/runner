@@ -13,22 +13,22 @@ Script is still early and incomplete. If you find any bugs, let me know in the
 Runner depends on:
 
 * `bash >=4.0`
-* `coreutils`
+* `coreutils >=8.0`
 
 These are very likely to be already installed on your system.
 
 
 ## 2. Installation
 
-Simply download the `runner.sh` file and place it somewhere inside your
-project folder.
+Simply download the `runner.sh` file (from `src` folder) and place it somewhere
+inside your project folder.
 
 
 ## 3. Usage
 
 ### 3.1. Basics
 
-Create an empty bash script (e.g. `tasks.sh`), which is going to be an entry
+Create an empty bash script (`runnerfile.sh`), which is going to be an entry
 point for the task runner. Add this to the beginning:
 
 ```bash
@@ -52,7 +52,7 @@ task_bar() {
 You can run a task by running this script with task names as arguments:
 
 ```bash
-$ bash tasks.sh foo bar
+$ bash runnerfile.sh foo bar
 [23:43:37.754] Starting 'foo'
 [23:43:37.755] Finished 'foo' after 1 ms
 [23:43:37.756] Starting 'bar'
@@ -128,7 +128,7 @@ none have failed, `41` if some have failed and `42` if all have failed.
 All flags you pass to the script are passed to your tasks.
 
 ```bash
-$ bash tasks.sh foo --production
+$ bash runnerfile.sh foo --production
 
 task_foo() {
     echo ${@} # --production
@@ -195,30 +195,29 @@ task_default() {
 ```
 
 
-## 5. WHY?
-
-![Why this exists?][derp_why]
+## 5. FAQ
 
 **Q:** Isn't Bash itself fundamentally a task runner?
 
-**A:** No, bash is a scripting language, not a task runner. Same story is with
-Grunt/Gulp for Javascript - you can "run tasks" in vanilla JS without any
-frameworks, but it costs you maintainability, redundancy, etc. My library is
-just a very thin layer around bash with functions that make sense for task
-running with concurrency in mind. You still got the power of bash in your
-hands.
+**A:** Bash is a scripting language, not a task runner by design. Same story is
+with Grunt/Gulp for Javascript - you can "run tasks" in vanilla JS without any
+frameworks, but it costs you time and effort. My library is just a very thin
+layer around bash with functions that make sense for task running with
+concurrency in mind. You still got the power of bash in your hands.
 
 **Q:** Why use this and not `make` / `ant` / ...?
 
 **A:** For a couple of reasons:
 
 * Sometimes it is just inappropriate to use them:
-    * They are meant to be used for build automation. If you're doing just
-    a bunch of scripts with it, you're using 1% of these tools' features.
+    * They are meant to use for build automation. If you're doing just a bunch
+    of scripts with it, you're using 1% of these tools' features.
+    * Ant is just a very bad attempt at overengineering. Don't use it.
+    Seriously. Unless you like writing huge XML files.
     * It's a yet another dependency. If you're already using `artisan` and
     `gulp` in your project, `make` will just add more confusion.
-* This library is very lightweight, runs straight away, and it is designed to
-be bundled with your project source code.
+* This library is very lightweight, runs straight away, and easy to bundle with
+your project source code.
 * It is a good tool to automate a project setup when you got nothing else,
 but `bash`.
 * If you already know `bash`, there is no new syntax to learn!
@@ -227,13 +226,23 @@ Even single core systems may benefit from this, especially if tasks are more
 IO oriented.
 
 I would also like to mention [Manuel], which is a similar task runner for
-`bash`. It is similar in many ways (although lacks concurrency). Feel free to
-check it out, too.
+`bash`. It is similar in many ways. Feel free to check it out, too.
 
 
 ## 6. Contribution
 
 Got a suggestion for a feature? Feel free to open a [feature request][issues].
+
+Please provide pull requests in a separate branch (other than `master`), this
+way it's more manageable to pull.
+
+Before coding, open an [issue] to get initial feedback and resolve problems.
+Write all feature related comments there, not into pull-request.
+
+
+## 7. License
+
+This software is covered by [LGPLv3 license][license].
 
 
 ## Contacts
@@ -244,7 +253,7 @@ Web: [stylemistake.com]
 
 [gulp]: https://github.com/gulpjs/gulp
 [issues]: https://github.com/stylemistake/bash-task-runner/issues
-[derp_why]: http://cdn.alltheragefaces.com/img/faces/jpg/neutral-whyyyyy.jpg
 [manuel]: https://github.com/ShaneKilkelly/manuel
+[license]: LICENSE.md
 [stylemistake.com]: http://stylemistake.com
 [stylemistake@gmail.com]: mailto:stylemistake@gmail.com
