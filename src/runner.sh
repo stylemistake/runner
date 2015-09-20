@@ -202,5 +202,4 @@ runner_bootstrap() {
         return 0
     fi
     runner_log "Nothing to run."
-    runner_show_defined_tasks
 }

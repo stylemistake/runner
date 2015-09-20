@@ -1,0 +1,5 @@
+#!/bin/bash
+runner_src_dir=`dirname ${0}`/../src
+
+source ${runner_src_dir}/runner.sh
+source ${runner_src_dir}/cli.sh
