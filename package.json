@@ -1,0 +1,28 @@
+{
+  "name": "bash-task-runner",
+  "version": "0.3.0",
+  "description": "Simple, lightweight task runner for Bash.",
+  "main": "index.sh",
+  "bin" : {
+    "runner": "./bin/runner"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stylemistake/bash-task-runner.git"
+  },
+  "keywords": [
+    "bash",
+    "task",
+    "runner",
+    "shell"
+  ],
+  "author": "Style Mistake <stylemistake@gmail.com>",
+  "contributors": [
+    "Roman Frołow <rofrol@gmail.com>"
+  ],
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/stylemistake/bash-task-runner/issues"
+  },
+  "homepage": "https://github.com/stylemistake/bash-task-runner#readme"
+}

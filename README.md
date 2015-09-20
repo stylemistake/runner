@@ -20,22 +20,45 @@ These are very likely to be already installed on your system.
 
 ## 2. Installation
 
-Simply download the `runner.sh` file (from `src` folder) and place it somewhere
-inside your project folder.
+There are many different ways to use `runner` in your project.
+
+Using `npm`:
+
+```bash
+## To install to your project folder
+npm install --save-dev bash-task-runner
+
+## To install globally
+npm install -g bash-task-runner
+```
+
+Alternatively, you can simply download the `runner.sh` file (from `src` folder)
+and place it somewhere inside your project folder.
 
 
 ## 3. Usage
 
-### 3.1. Basics
+### 3.1. Setup
 
-Create an empty bash script (`runnerfile.sh`), which is going to be an entry
-point for the task runner. Add this to the beginning:
+Create an empty bash script (`runnerfile.sh`), which is an entry point for the
+task runner.
+
+If you want the `runnerfile.sh` to be a task runner itself, add this to
+the beginning of the script:
 
 ```bash
 #!/bin/bash
 cd `dirname ${0}`
-source runner.sh
+source <path_to>/runner.sh
 ```
+
+You can also use a `bash-require` package from `npm`:
+
+```bash
+require 'task-runner'
+```
+
+### 3.2. Basics
 
 Create some tasks:
 
@@ -49,18 +72,24 @@ task_bar() {
 }
 ```
 
-You can run a task by running this script with task names as arguments:
+Then you can run tasks with `runner` tool:
 
 ```bash
-$ bash runnerfile.sh foo bar
+$ runner foo bar
 [23:43:37.754] Starting 'foo'
 [23:43:37.755] Finished 'foo' after 1 ms
 [23:43:37.756] Starting 'bar'
 [23:43:37.757] Finished 'bar' after 1 ms
 ```
 
-You can define a default task. It will run if no arguments were provided to
-the script:
+Or in case your script sources the task runner:
+
+```bash
+$ bash runnerfile.sh foo bar
+```
+
+You can define a default task. It will run if no arguments were provided to the
+task runner:
 
 ```bash
 task_default() {
@@ -74,7 +103,7 @@ You can change which task is default:
 runner_set_default_task foo
 ```
 
-### 3.2. Task chaining
+### 3.3. Task chaining
 
 Tasks can launch other tasks in two ways: *sequentially* and in *parallel*.
 This way you can optimize the task flow for maximum concurrency.
@@ -103,7 +132,7 @@ task_default() {
 }
 ```
 
-### 3.3. Error handling
+### 3.4. Error handling
 
 Sometimes you need to stop the whole task if some of the commands fails.
 You can achieve this with a simple conditional return:
@@ -123,12 +152,12 @@ The difference in `runner_parallel` is if an error occurs in one of the tasks,
 other tasks continue to run. After all tasks finish, it returns `0` if
 none have failed, `41` if some have failed and `42` if all have failed.
 
-### 3.4. Flags
+### 3.5. Flags
 
 All flags you pass to the script are passed to your tasks.
 
 ```bash
-$ bash runnerfile.sh foo --production
+$ runner foo --production
 
 task_foo() {
     echo ${@} # --production
@@ -138,8 +167,8 @@ task_foo() {
 
 ## 4. Example
 
-This example is a real world script, which automates setup of a Laravel
-project:
+This example is a real world script, which automates the initial setup of
+Laravel project environment:
 
 ```bash
 #!/bin/bash
