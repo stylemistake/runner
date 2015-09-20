@@ -100,7 +100,7 @@ declare -A runner_colors=(
 )
 
 runner_colorize() {
-    echo "${runner_colors[$2]}${1}${runner_colors[reset]}"
+    echo "${runner_colors[$1]}${@}${runner_colors[reset]}"
 }
 
 ## List all defined functions beginning with `task_`
