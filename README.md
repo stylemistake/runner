@@ -72,7 +72,7 @@ task_bar() {
 }
 ```
 
-Then you can run tasks with `runner` tool:
+Then you can run tasks with the `runner` tool:
 
 ```bash
 $ runner foo bar
@@ -276,9 +276,8 @@ This software is covered by [LGPLv3 license][license].
 
 ## Contacts
 
-Email: [stylemistake@gmail.com]
+Style Mistake <[stylemistake@gmail.com]>
 
-Web: [stylemistake.com]
 
 [gulp]: https://github.com/gulpjs/gulp
 [issues]: https://github.com/stylemistake/bash-task-runner/issues
