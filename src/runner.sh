@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Default task (settable with `runner_set_default_task`)
-runner_default_task="default"
+declare -g runner_default_task="default"
 
 ## Trap EXIT signal to bootstrap the runner.
 ## Works like a charm - your script ends, tasks start to run.
@@ -11,14 +11,28 @@ trap '[[ ${?} -eq 0 ]] && runner_bootstrap' EXIT
 ## Expand aliases
 shopt -s expand_aliases
 
+## Determine the initial passed arguments to the root script
+## NOTE: BASH_ARGV arguments are in backwards order
+if [[ -n "${BASH_ARGV[*]}" ]]; then
+    declare -ga runner_args="${BASH_ARGV[@]}"
+else
+    declare -ga runner_args="${@}"
+fi
+
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
 ## E.g. --production
-for arg in ${@}; do
+declare -g runner_flags
+declare -g runner_tasks
+
+for arg in ${runner_args[@]}; do
+    ## Filter out paths which come from BASH_ARGV
+    [[ ${BASH_SOURCE[@]} =~ ${arg} ]] && continue
+    ## Put into flags or tasks
     if [[ ${arg} == -* ]]; then
-        runner_flags="${runner_flags} ${arg}"
+        runner_flags="${arg} ${runner_flags}"
     else
-        runner_tasks="${runner_tasks} ${arg}"
+        runner_tasks="${arg} ${runner_tasks}"
     fi
 done
 
@@ -79,7 +93,7 @@ runner_pretty_ms() {
     echo ${result}
 }
 
-declare -A runner_colors=(
+declare -gA runner_colors=(
     [black]=`echo -e '\e[30m'`
     [red]=`echo -e '\e[31m'`
     [green]=`echo -e '\e[32m'`

@@ -1,6 +1,6 @@
 #!/bin/bash
-runner_src_dir=`dirname $(readlink -f ${0})`/../src
-runner_src_dir=`readlink -f ${runner_src_dir}`
+runner_src_dir="`dirname $(readlink -f ${0})`/../src"
+runner_src_dir="`readlink -f ${runner_src_dir}`"
 
 source ${runner_src_dir}/runner.sh
 source ${runner_src_dir}/cli.sh
