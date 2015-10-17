@@ -175,7 +175,7 @@ runner_run_task() {
             "failed after ${time_diff} (${exit_code})"
         return ${exit_code}
     fi
-    runner_log "Finished '${task_color}" \
+    runner_log "Finished '${task_color}'" \
         "after ${runner_colors[purple]}${time_diff}${runner_colors[reset]}"
 }
 
