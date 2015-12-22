@@ -17,6 +17,12 @@ Runner depends on:
 
 These are very likely to be already installed on your system.
 
+**Note for Mac OS X users:**
+
+Use [Homebrew](http://brew.sh/) to install the dependencies:
+
+    brew install bash coreutils
+
 
 ## 2. Installation
 
