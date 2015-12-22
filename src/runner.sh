@@ -3,9 +3,9 @@
 # Mac OS X: fallback on coreutils
 # Detecting GNU utils http://stackoverflow.com/a/8748344/319952
 if date --version > /dev/null 2>&1 ; then
-  : # date is GNU
+  alias runner_date='date'
 else
-  alias date='gdate'
+  alias runner_date='gdate'
 fi
 
 ## Default task (settable with `runner_set_default_task`)
@@ -46,7 +46,7 @@ done
 
 ## Logs a message with a timestamp
 runner_log() {
-    local local_date=`date +%T.%3N`
+    local local_date=`runner_date +%T.%3N`
     echo [${runner_colors[gray]}${local_date}${runner_colors[reset]}] "${*}"
 }
 
@@ -64,7 +64,7 @@ runner_log_success() {
 }
 
 ## Returns unix time in ms
-alias runner_time="date +%s%3N"
+alias runner_time="runner_date +%s%3N"
 
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
