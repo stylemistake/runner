@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+# Mac OS X: fallback on coreutils
 if [ `which greadlink` ]; then
-	alias readlink="greadlink"
+  readlink="greadlink"
+else
+  readlink="readlink"
 fi
 
-runner_src_dir="`dirname $(greadlink -f ${0})`/../src"
-runner_src_dir="`greadlink -f ${runner_src_dir}`"
+runner_src_dir="`dirname $($readlink -f ${0})`/../src"
+runner_src_dir="`$readlink -f ${runner_src_dir}`"
 
 source ${runner_src_dir}/runner.sh
 source ${runner_src_dir}/cli.sh

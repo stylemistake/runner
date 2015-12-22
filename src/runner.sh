@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Mac OS X: fallback on coreutils
+if [ `which gdate` ]; then
+  date="gdate"
+else
+  date="date"
+fi
+
 ## Default task (settable with `runner_set_default_task`)
 declare -g runner_default_task="default"
 
@@ -38,8 +45,8 @@ done
 
 ## Logs a message with a timestamp
 runner_log() {
-    local date=`gdate +%T.%3N`
-    echo [${runner_colors[gray]}${date}${runner_colors[reset]}] "${*}"
+    local local_date=`${date} +%T.%3N`
+    echo [${runner_colors[gray]}${local_date}${runner_colors[reset]}] "${*}"
 }
 
 ## Variations of log with colors
@@ -57,9 +64,9 @@ runner_log_success() {
 
 ## Returns unix time in ms
 if [ `which gdate` ]; then
-    alias runner_time='gdate +%s%3N'
+    runner_time="${date} +%s%3N"
 else
-    alias runner_time='date +%s%3N'
+    runner_time="${date} +%s%3N"
 fi
 
 ## Returns a human readable duration in ms
@@ -169,10 +176,10 @@ runner_set_default_task() {
 runner_run_task() {
     local task_color="${runner_colors[cyan]}${1}${runner_colors[reset]}"
     runner_log "Starting '${task_color}'..."
-    local -i time_start=`runner_time`
+    local -i time_start=`${runner_time}`
     task_${1} ${runner_flags}
     local exit_code=${?}
-    local -i time_end=`runner_time`
+    local -i time_end=`${runner_time}`
     local time_diff=`runner_pretty_ms $((time_end - time_start))`
     if [[ ${exit_code} -ne 0 ]]; then
         runner_log_error "Task '${1}'" \
