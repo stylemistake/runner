@@ -1,6 +1,11 @@
-#!/bin/bash
-runner_src_dir="`dirname $(readlink -f ${0})`/../src"
-runner_src_dir="`readlink -f ${runner_src_dir}`"
+#!/usr/bin/env bash
+
+if [ `which greadlink` ]; then
+	alias readlink="greadlink"
+fi
+
+runner_src_dir="`dirname $(greadlink -f ${0})`/../src"
+runner_src_dir="`greadlink -f ${runner_src_dir}`"
 
 source ${runner_src_dir}/runner.sh
 source ${runner_src_dir}/cli.sh

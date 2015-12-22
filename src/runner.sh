@@ -38,7 +38,7 @@ done
 
 ## Logs a message with a timestamp
 runner_log() {
-    local date=`date +%T.%3N`
+    local date=`gdate +%T.%3N`
     echo [${runner_colors[gray]}${date}${runner_colors[reset]}] "${*}"
 }
 
@@ -56,7 +56,11 @@ runner_log_success() {
 }
 
 ## Returns unix time in ms
-alias runner_time='date +%s%3N'
+if [ `which gdate` ]; then
+    alias runner_time='gdate +%s%3N'
+else
+    alias runner_time='date +%s%3N'
+fi
 
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
