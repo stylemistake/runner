@@ -4,8 +4,8 @@ Simple, lightweight task runner for Bash.
 
 Inspired by [Gulp] version 4.
 
-Script is still early and incomplete. If you find any bugs, let me know in the
-[issues section][issues] of this repository.
+Script is still early and incomplete. If you find any bugs, let me know by
+creating an [issue][issues].
 
 
 ## 1. Pre-requisites
@@ -33,7 +33,7 @@ npm install -g bash-task-runner
 ```
 
 Alternatively, you can simply download the `runner.sh` file (from `src` folder)
-and place it somewhere inside your project folder.
+and place it inside your project folder.
 
 
 ## 3. Usage
@@ -43,8 +43,8 @@ and place it somewhere inside your project folder.
 Create an empty bash script (`runnerfile.sh`), which is an entry point for the
 task runner.
 
-If you want the `runnerfile.sh` to be a task runner itself, add this to
-the beginning of the script:
+*Optional*: If you want the `runnerfile.sh` to be a task runner itself, add
+this to the beginning of the script:
 
 ```bash
 #!/bin/bash
@@ -52,11 +52,6 @@ cd `dirname ${0}`
 source <path_to>/runner.sh
 ```
 
-You can also use a `bash-require` package from `npm`:
-
-```bash
-require 'task-runner'
-```
 
 ### 3.2. Basics
 
@@ -175,18 +170,16 @@ Laravel project environment:
 cd `dirname ${0}`
 source runner.sh
 
-cd ..
-
 NPM_GLOBAL_PACKAGES="gulp bower node-gyp"
 
 task_php() {
-    if ! [ -e "composer.phar" ]; then
-        wget http://getcomposer.org/composer.phar || return
+    if [[ ! -e "composer.phar" ]]; then
+        php -r "readfile('https://getcomposer.org/installer');" | php || return
     fi
 
     php composer.phar install || return
 
-    if ! [ -e ".env" ]; then
+    if [[ ! -e ".env" ]]; then
         cp .env.example .env
         php artisan key:generate
     fi
@@ -228,50 +221,49 @@ task_default() {
 
 **Q:** Isn't Bash itself fundamentally a task runner?
 
-**A:** Bash is a scripting language, not a task runner by design. Same story is
-with Grunt/Gulp for Javascript - you can "run tasks" in vanilla JS without any
-frameworks, but it costs you time and effort. My library is just a very thin
-layer around bash with functions that make sense for task running with
-concurrency in mind. You still got the power of bash in your hands.
+Bash is a scripting language, not a task runner by design. My library is a very
+thin layer around `bash` for declaring tasks, which can be run concurrently and
+individually, from CLI. It doesn't restrict you in any way, you write a script
+as you always do.
 
-**Q:** Why use this and not `make` / `ant` / ...?
+**Q:** Why should i use it?
 
-**A:** For a couple of reasons:
-
-* Sometimes it is just inappropriate to use them:
-    * They are meant to use for build automation. If you're doing just a bunch
-    of scripts with it, you're using 1% of these tools' features.
-    * Ant is just a very bad attempt at overengineering. Don't use it.
-    Seriously. Unless you like writing huge XML files.
-    * It's a yet another dependency. If you're already using `artisan` and
-    `gulp` in your project, `make` will just add more confusion.
-* This library is very lightweight, runs straight away, and easy to bundle with
-your project source code.
-* It is a good tool to automate a project setup when you got nothing else,
-but `bash`.
+* This library is very lightweight and easy to bundle within your project.
+* When you got nothing else, but `bash`.
 * If you already know `bash`, there is no new syntax to learn!
-* It's as fast as `make` with `-j` flag if using parallel execution of tasks.
-Even single core systems may benefit from this, especially if tasks are more
-IO oriented.
+* You can run tasks in parallel. Even single core systems may benefit from
+this, especially if tasks are more IO oriented.
+
+**Q:** Why not to use `make` / `ant` / ...?
+
+* `ant` has a benefit of being cross-platform (it has built-in *coreutils*-like
+features and some others), and many implementations exist; but if you need
+something outside the box, you end up tying everything to existing OS
+infrastructure anyway; it also has the drawback of using XML - you write a lot
+just to do something simple.
+* `make` is awesome, because it uses a very compact syntax and does a lot under
+the hood, but it's very opinionated about it, so if you need to run a generic
+script, you call it from `make`. If all you do is run scripts, then why `make`?
+* Yet another dependency. If you're already using many build tools in
+your project, another one will just add more confusion.
 
 I would also like to mention [Manuel], which is a similar task runner for
-`bash`. It is similar in many ways. Feel free to check it out, too.
+`bash`. Feel free to check it out, too.
 
 
 ## 6. Contribution
 
-Got a suggestion for a feature? Feel free to open a [feature request][issues].
-
 Please provide pull requests in a separate branch (other than `master`), this
-way it's more manageable to pull.
+way it's more manageable for me to review and pull.
 
-Before coding, open an [issue] to get initial feedback and resolve problems.
-Write all feature related comments there, not into pull-request.
+Before writing code, open an [issue][issues] to get initial feedback and
+resolve potential problems. Write all feature related comments there, not into
+pull-request.
 
 
 ## 7. License
 
-This software is covered by [LGPLv3 license][license].
+This software is covered by [LGPL-3 license][license].
 
 
 ## Contacts
