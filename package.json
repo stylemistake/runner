@@ -3,9 +3,14 @@
   "version": "0.4.0",
   "description": "Simple, lightweight task runner for Bash.",
   "main": "index.sh",
-  "bin" : {
-    "runner": "./bin/runner"
+  "bin": {
+    "runner": "bin/runner"
   },
+  "files": [
+    "bin/runner",
+    "src/*",
+    "index.sh"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stylemistake/bash-task-runner.git"
