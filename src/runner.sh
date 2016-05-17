@@ -223,5 +223,5 @@ runner_bootstrap() {
         runner_run_task ${runner_default_task} || exit ${?}
         return 0
     fi
-    runner_log "Nothing to run."
+    runner_show_defined_tasks
 }
