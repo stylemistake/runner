@@ -63,6 +63,10 @@ runner_log_success() {
     runner_log ${runner_colors[green]}"${*}"${runner_colors[reset]}
 }
 
+runner_log_notice() {
+    runner_log ${runner_colors[gray]}"${*}"${runner_colors[reset]}
+}
+
 ## Returns unix time in ms
 alias runner_time="runner_date +%s%3N"
 
