@@ -2,26 +2,25 @@
 
 Simple, lightweight task runner for Bash.
 
-Inspired by [Gulp] version 4.
-
-Script is still early and incomplete. If you find any bugs, let me know by
-creating an [issue][issues].
+If you find any bugs, let me know by creating an [issue][issues].
 
 
 ## 1. Pre-requisites
 
 Runner depends on:
 
-* `bash >=4.0`
-* `coreutils >=8.0`
+* bash `>=4.0`
+* coreutils `>=8.0`
 
-These are very likely to be already installed on your system.
+These are very likely to be already installed on your Linux machine.
 
 **Note for Mac OS X users:**
 
-Use [Homebrew](http://brew.sh/) to install the dependencies:
+Use [Homebrew] to install the dependencies:
 
-    brew install bash coreutils
+```bash
+brew install bash coreutils
+```
 
 
 ## 2. Installation
@@ -38,7 +37,7 @@ npm install --save-dev bash-task-runner
 npm install -g bash-task-runner
 ```
 
-Alternatively, you can simply download the `runner.sh` file (from `src` folder)
+Alternatively, you can simply download the [src/runner.sh] file
 and place it inside your project folder.
 
 
@@ -165,11 +164,26 @@ task_foo() {
 }
 ```
 
+### 3.6. Command echoing
+
+`runner_run` command gives a way to run commands and have them outputted:
+
+```bash
+task_default() {
+  runner_run composer install
+  ## [12:19:17.170] Starting 'default'...
+  ## [12:19:17.173] composer install
+  ## Loading composer repositories with package information
+  ## ...
+  ## [12:19:17.932] Finished 'default' after 758 ms
+}
+```
+
 
 ## 4. Example
 
-This example is a real world script, which automates the initial setup of
-Laravel project environment:
+This is a real world script that automates the initial setup of some
+Laravel project. It uses demonstrates every feature this task runner has.
 
 ```bash
 #!/bin/bash
@@ -178,25 +192,34 @@ source runner.sh
 
 NPM_GLOBAL_PACKAGES="gulp bower node-gyp"
 
-task_php() {
-    if [[ ! -e "composer.phar" ]]; then
-        php -r "readfile('https://getcomposer.org/installer');" | php || return
-    fi
-
-    php composer.phar install || return
-
-    if [[ ! -e ".env" ]]; then
-        cp .env.example .env
-        php artisan key:generate
+task_default() {
+    runner_parallel php node || return
+    if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
+        runner_log_warning "Please install these packages manually:"
+        runner_log "'npm install -g ${NPM_GLOBAL_PACKAGES}'"
+        exit 1
     fi
 }
 
-task_node() {
-    if [ -e "${HOME}/.nvm/nvm.sh" ]; then
-        if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
-            npm install -g ${NPM_GLOBAL_PACKAGES} || return
-        fi
+task_php() {
+    runner_sequence php_{composer,vendor} || return
+    if [[ ! -e ".env" ]]; then
+        cp .env.example .env
+        runner_run php artisan key:generate
     fi
+}
+
+task_php_composer() {
+    if [[ ! -e "composer.phar" ]]; then
+        php -r "readfile('https://getcomposer.org/installer');" | php
+    fi
+}
+
+task_php_vendor() {
+    runner_run php composer.phar install
+}
+
+task_node() {
     runner_parallel node_{npm,bower}
 }
 
@@ -212,49 +235,14 @@ task_node_bower() {
     bower install
 }
 
-task_default() {
-    runner_parallel php node || return
-
-    if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
-        runner_log_warning "Please install these packages manually:"
-        runner_log "'npm install -g ${NPM_GLOBAL_PACKAGES}'"
-    fi
-}
+runner_bootstrap
+runner_log_success "Success!"
 ```
 
 
 ## 5. FAQ
 
-**Q:** Isn't Bash itself fundamentally a task runner?
-
-Bash is a scripting language, not a task runner by design. My library is a very
-thin layer around `bash` for declaring tasks, which can be run concurrently and
-individually, from CLI. It doesn't restrict you in any way, you write a script
-as you always do.
-
-**Q:** Why should i use it?
-
-* This library is very lightweight and easy to bundle within your project.
-* When you got nothing else, but `bash`.
-* If you already know `bash`, there is no new syntax to learn!
-* You can run tasks in parallel. Even single core systems may benefit from
-this, especially if tasks are more IO oriented.
-
-**Q:** Why not to use `make` / `ant` / ...?
-
-* `ant` has a benefit of being cross-platform (it has built-in *coreutils*-like
-features and some others), and many implementations exist; but if you need
-something outside the box, you end up tying everything to existing OS
-infrastructure anyway; it also has the drawback of using XML - you write a lot
-just to do something simple.
-* `make` is awesome, because it uses a very compact syntax and does a lot under
-the hood, but it's very opinionated about it, so if you need to run a generic
-script, you call it from `make`. If all you do is run scripts, then why `make`?
-* Yet another dependency. If you're already using many build tools in
-your project, another one will just add more confusion.
-
-I would also like to mention [Manuel], which is a similar task runner for
-`bash`. Feel free to check it out, too.
+Read the [FAQ]
 
 
 ## 6. Contribution
@@ -277,9 +265,11 @@ This software is covered by [LGPL-3 license][license].
 Style Mistake <[stylemistake@gmail.com]>
 
 
-[gulp]: https://github.com/gulpjs/gulp
+[homebrew]: http://brew.sh/
+[src/runner.sh]: https://raw.githubusercontent.com/stylemistake/bash-task-runner/master/src/runner.sh
 [issues]: https://github.com/stylemistake/bash-task-runner/issues
 [manuel]: https://github.com/ShaneKilkelly/manuel
+[faq]: https://github.com/stylemistake/bash-task-runner/wiki/FAQ
 [license]: LICENSE.md
 [stylemistake.com]: http://stylemistake.com
 [stylemistake@gmail.com]: mailto:stylemistake@gmail.com
