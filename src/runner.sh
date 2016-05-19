@@ -214,6 +214,12 @@ runner_parallel() {
     [[ ${exits} -lt ${#} ]] && return 41 || return 42
 }
 
+## Output command before execution
+runner_run() {
+    runner_log_notice "${@}"
+    ${@}
+}
+
 ## Starts the initial task.
 runner_bootstrap() {
     ## Clear a trap we set up earlier
