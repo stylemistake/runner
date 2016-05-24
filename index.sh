@@ -12,7 +12,11 @@ else
 fi
 
 ## Resolve the absolute path to the source folder
-runner_src_dir="$(dirname "$(runner_readlink -f ${0})")/src"
+if [[ "${FUNCNAME[0]}" == source ]]; then
+    runner_src_dir="$(dirname "$(runner_readlink -f "${BASH_SOURCE[0]}")")/src"
+else
+    runner_src_dir="$(dirname "$(runner_readlink -f "${0}")")/src"
+fi
 
 ## Include core files
 source "${runner_src_dir}/runner.sh"

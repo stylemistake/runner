@@ -154,7 +154,7 @@ none have failed, `41` if some have failed and `42` if all have failed.
 
 ### 3.5. Flags
 
-All flags you pass to the script are passed to your tasks.
+All flags you pass after the task name are passed to your tasks.
 
 ```bash
 $ runner foo --production
@@ -162,6 +162,19 @@ $ runner foo --production
 task_foo() {
     echo ${@} # --production
 }
+```
+
+To pass options to the `runner` CLI specifically, you must provide them
+before any task names:
+
+```bash
+$ runner -f scripts/tasks.sh foo
+```
+
+To get all possible `runner` CLI options, use the `-h` (help) flag:
+
+```bash
+$ runner -h
 ```
 
 ### 3.6. Command echoing

@@ -20,22 +20,14 @@ trap '[[ ${?} -eq 0 ]] && runner_bootstrap' EXIT
 shopt -s expand_aliases
 
 ## Determine the initial passed arguments to the root script
-declare -ga runner_args="${@}"
+declare -ga runner_args=("${@}")
 
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
 ## E.g. --production
-declare -g runner_flags
-declare -g runner_tasks
-
-for arg in ${runner_args[@]}; do
-    ## Put into flags or tasks
-    if [[ ${arg} == -* ]]; then
-        runner_flags="${runner_flags} ${arg}"
-    else
-        runner_tasks="${runner_tasks} ${arg}"
-    fi
-done
+## NOTE: The actual splitting is done in runner_bootstrap.
+declare -ga runner_flags
+declare -ga runner_tasks
 
 ## Logs a message with a timestamp
 runner_log() {
@@ -65,7 +57,7 @@ alias runner_time="runner_date +%s%3N"
 
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
-    local -i ms=${1}
+    local -i ms="${1}"
     local result
     ## If zero or nothing
     if [[ -z ${ms} || ${ms} -lt 1 ]]; then
@@ -125,7 +117,7 @@ runner_colorize() {
 ## List all defined functions beginning with `task_`
 runner_get_defined_tasks() {
     local IFS=$'\n'
-    for task in `typeset -F`; do
+    for task in $(typeset -F); do
         [[ ${task} == 'declare -f task_'* ]] && echo ${task:16}
     done
 }
@@ -138,25 +130,25 @@ runner_show_defined_tasks() {
         runner_log "  ${runner_colors[light_gray]}<none>${runner_colors[reset]}"
         return
     fi
-    for task in ${tasks}; do
+    for task in "${tasks}"; do
         runner_log "  ${runner_colors[cyan]}${task}${runner_colors[reset]}"
     done
 }
 
 ## Checks if program is accessible from current $PATH
 runner_is_defined() {
-    hash ${@} 2>/dev/null
+    hash "${@}" 2>/dev/null
 }
 
 runner_is_task_defined() {
-    for task in ${@}; do
-        runner_is_defined task_${task} || return
+    for task in "${@}"; do
+        runner_is_defined "task_${task}" || return
     done
 }
 
 runner_is_task_defined_verbose() {
-    for task in ${@}; do
-        if ! runner_is_defined task_${task}; then
+    for task in "${@}"; do
+        if ! runner_is_defined "task_${task}"; then
             runner_log_error "Task '${task}' is not defined!"
             return 1
         fi
@@ -167,7 +159,7 @@ runner_run_task() {
     local task_color="${runner_colors[cyan]}${1}${runner_colors[reset]}"
     runner_log "Starting '${task_color}'..."
     local -i time_start=`runner_time`
-    task_${1} ${runner_flags}
+    "task_${1}" "${runner_flags[@]}"
     local exit_code=${?}
     local -i time_end=`runner_time`
     local time_diff=`runner_pretty_ms $((time_end - time_start))`
@@ -182,22 +174,22 @@ runner_run_task() {
 
 ## Run tasks sequentially.
 runner_sequence() {
-    runner_is_task_defined_verbose ${@} || return
-    for task in ${@}; do
-        runner_run_task ${task} || return
+    runner_is_task_defined_verbose "${@}" || return
+    for task in "${@}"; do
+        runner_run_task "${task}" || return
     done
 }
 
 ## Run tasks in parallel.
 runner_parallel() {
-    runner_is_task_defined_verbose ${@} || return 1
+    runner_is_task_defined_verbose "${@}" || return 1
     local -a pid
     local -i exits=0
-    for task in ${@}; do
-        runner_run_task ${task} & pid+=(${!})
+    for task in "${@}"; do
+        runner_run_task "${task}" & pid+=(${!})
     done
-    for pid in ${pid[@]}; do
-        wait ${pid} || exits+=1
+    for pid in "${pid[@]}"; do
+        wait "${pid}" || exits+=1
     done
     [[ ${exits} -eq 0 ]] && return 0
     [[ ${exits} -lt ${#} ]] && return 41 || return 42
@@ -206,21 +198,30 @@ runner_parallel() {
 ## Output command before execution
 runner_run() {
     runner_log_notice "${@}"
-    ${@}
+    "${@}"
 }
 
 ## Starts the initial task.
 runner_bootstrap() {
     ## Clear a trap we set up earlier
     trap - EXIT
+    ## Parse arguments
+    for arg in "${runner_args[@]}"; do
+        if [[ ${arg} == -* ]]; then
+            runner_flags+=("${arg}")
+        else
+            runner_tasks+=("${arg}")
+        fi
+    done
     ## Run tasks
-    if [[ -n ${runner_tasks} ]]; then
-        runner_sequence ${runner_tasks} || exit ${?}
+    if [[ ${#runner_tasks[@]} -gt 0 ]]; then
+        runner_sequence "${runner_tasks[@]}" || exit ${?}
         return 0
     fi
-    if runner_is_task_defined ${runner_default_task}; then
-        runner_run_task ${runner_default_task} || exit ${?}
+    if runner_is_task_defined "${runner_default_task}"; then
+        runner_run_task "${runner_default_task}" || exit ${?}
         return 0
     fi
+    ## Nothing to run
     runner_show_defined_tasks
 }
