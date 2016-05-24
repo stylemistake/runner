@@ -8,7 +8,7 @@ else
     alias runner_date='gdate'
 fi
 
-## Default task (settable with `runner_set_default_task`)
+## Default task
 declare -g runner_default_task="default"
 
 ## Trap EXIT signal to bootstrap the runner.
@@ -161,10 +161,6 @@ runner_is_task_defined_verbose() {
             return 1
         fi
     done
-}
-
-runner_set_default_task() {
-    runner_default_task=${1}
 }
 
 runner_run_task() {

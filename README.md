@@ -48,8 +48,8 @@ and place it inside your project folder.
 Create an empty bash script (`runnerfile.sh`), which is an entry point for the
 task runner.
 
-*Optional*: If you want the `runnerfile.sh` to be a task runner itself, add
-this to the beginning of the script:
+*Optional*: If you want the `runnerfile.sh` to be a self-contained script, add
+this to the beginning:
 
 ```bash
 #!/bin/bash
@@ -100,7 +100,7 @@ task_default() {
 You can change which task is default:
 
 ```bash
-runner_set_default_task foo
+runner_default_task="foo"
 ```
 
 ### 3.3. Task chaining
@@ -182,8 +182,8 @@ task_default() {
 
 ## 4. Example
 
-This is a real world script that automates the initial setup of some
-Laravel project. It uses demonstrates every feature this task runner has.
+This is a real world script that automates the initial setup of a
+Laravel project.
 
 ```bash
 #!/bin/bash
