@@ -19,9 +19,11 @@ else
 fi
 
 ## Include core files
+# shellcheck source=src/runner.sh
 source "${runner_src_dir}/runner.sh"
 
 ## Include CLI specific files
 if [[ "${FUNCNAME[0]}" != source ]]; then
+    # shellcheck source=src/cli.sh
     source "${runner_src_dir}/cli.sh"
 fi

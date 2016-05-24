@@ -88,7 +88,7 @@ if [[ -n ${runner_directory} ]]; then
     if [[ ! -d ${runner_directory} ]]; then
         runner_cli_error "'${runner_directory}' is not a directory!"
     fi
-    cd "${runner_directory}"
+    cd "${runner_directory}" || runner_cli_error "Could not change directory!"
 fi
 
 ## Try to find a runnerfile
@@ -111,4 +111,5 @@ if [[ -z ${runner_file} ]]; then
 fi
 
 ## Source the runnerfile
+# shellcheck source=/dev/null
 source "${runner_file}"
