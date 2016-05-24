@@ -20,12 +20,7 @@ trap '[[ ${?} -eq 0 ]] && runner_bootstrap' EXIT
 shopt -s expand_aliases
 
 ## Determine the initial passed arguments to the root script
-## NOTE: BASH_ARGV arguments are in backwards order
-if [[ -n "${BASH_ARGV[*]}" ]]; then
-    declare -ga runner_args="${BASH_ARGV[@]}"
-else
-    declare -ga runner_args="${@}"
-fi
+declare -ga runner_args="${@}"
 
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
@@ -34,13 +29,11 @@ declare -g runner_flags
 declare -g runner_tasks
 
 for arg in ${runner_args[@]}; do
-    ## Filter out paths which come from BASH_ARGV
-    [[ ${BASH_SOURCE[@]} =~ ${arg} ]] && continue
     ## Put into flags or tasks
     if [[ ${arg} == -* ]]; then
-        runner_flags="${arg} ${runner_flags}"
+        runner_flags="${runner_flags} ${arg}"
     else
-        runner_tasks="${arg} ${runner_tasks}"
+        runner_tasks="${runner_tasks} ${arg}"
     fi
 done
 

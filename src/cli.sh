@@ -8,10 +8,10 @@ declare -a runner_file_default_names=(
 )
 
 ## Find a runnerfile
-for file in ${runner_file_default_names[*]}; do
+for file in "${runner_file_default_names[@]}"; do
     if [[ -f ${file} ]]; then
-        runner_file=${file}
-        source ${file}
+        runner_file="${file}"
+        source "${file}"
         break
     fi
 done

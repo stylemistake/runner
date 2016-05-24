@@ -1,14 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [[ "${FUNCNAME[0]}" == source ]]; then
-    if [[ -n ${TARGET_PATH} ]]; then
-        ## Use path from bash-require
-        runner_src_dir="${TARGET_PATH}/src"
-    else
-        ## Determine path from BASH_SOURCE variable
-        runner_src_dir="`dirname $(readlink -f ${BASH_SOURCE[0]})`/src"
-    fi
-    source ${runner_src_dir}/runner.sh
+## Expand aliases
+shopt -s expand_aliases
+
+## Mac OS X: fallback on homebrew coreutils
+## Detecting GNU utils http://stackoverflow.com/a/8748344/319952
+if readlink --version > /dev/null 2>&1 ; then
+    alias runner_readlink="readlink"
 else
-    echo "bash-task-runner: index.sh is for sourcing from other scripts."
+    alias runner_readlink="greadlink"
+fi
+
+## Resolve the absolute path to the source folder
+runner_src_dir="$(dirname "$(runner_readlink -f ${0})")/src"
+
+## Include core files
+source "${runner_src_dir}/runner.sh"
+
+## Include CLI specific files
+if [[ "${FUNCNAME[0]}" != source ]]; then
+    source "${runner_src_dir}/cli.sh"
 fi

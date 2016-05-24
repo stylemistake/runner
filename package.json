@@ -4,10 +4,9 @@
   "description": "Simple, lightweight task runner for Bash.",
   "main": "index.sh",
   "bin": {
-    "runner": "bin/runner"
+    "runner": "index.sh"
   },
   "files": [
-    "bin/runner",
     "src/*",
     "index.sh"
   ],
