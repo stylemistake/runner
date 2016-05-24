@@ -7,7 +7,7 @@ declare -a runner_file_default_names=(
     'Runnerfile'
 )
 
-## Find a runnerfile.sh
+## Find a runnerfile
 for file in ${runner_file_default_names[*]}; do
     if [[ -f ${file} ]]; then
         runner_file=${file}
@@ -16,6 +16,9 @@ for file in ${runner_file_default_names[*]}; do
     fi
 done
 
+## Runnerfile not found
 if [[ -z ${runner_file} ]]; then
+    trap - EXIT
     runner_log_error 'No runnerfile found.'
+    exit 2
 fi

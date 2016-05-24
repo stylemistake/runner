@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Mac OS X: fallback on coreutils
-# Detecting GNU utils http://stackoverflow.com/a/8748344/319952
+## Mac OS X: fallback on coreutils
+## Detecting GNU utils http://stackoverflow.com/a/8748344/319952
 if date --version > /dev/null 2>&1 ; then
-  alias runner_date='date'
+    alias runner_date='date'
 else
-  alias runner_date='gdate'
+    alias runner_date='gdate'
 fi
 
 ## Default task (settable with `runner_set_default_task`)

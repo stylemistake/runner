@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# Mac OS X: fallback on homebrew coreutils
-# Detecting GNU utils http://stackoverflow.com/a/8748344/319952
+## Mac OS X: fallback on homebrew coreutils
+## Detecting GNU utils http://stackoverflow.com/a/8748344/319952
 if readlink --version > /dev/null 2>&1 ; then
-  runner_readlink="readlink"
+    runner_readlink="readlink"
 else
-  runner_readlink="/usr/local/bin/greadlink"
+    runner_readlink="/usr/local/bin/greadlink"
 fi
 
 runner_src_dir="`dirname $($runner_readlink -f ${0})`/../src"
