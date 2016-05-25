@@ -1,5 +1,8 @@
 # Task runner for Bash
 
+[![NPM](https://badge.fury.io/js/bash-task-runner.svg)][npm]
+[![Gitter](https://badges.gitter.im/stylemistake/bash-task-runner.svg)][gitter]
+
 Simple, lightweight task runner for Bash.
 
 If you find any bugs, let me know by creating an [issue][issues].
@@ -285,6 +288,8 @@ This software is covered by [LGPL-3 license][license].
 Style Mistake <[stylemistake@gmail.com]>
 
 
+[gitter]: https://gitter.im/stylemistake/bash-task-runner
+[npm]: https://www.npmjs.com/package/bash-task-runner
 [homebrew]: http://brew.sh/
 [src/runner.sh]: https://raw.githubusercontent.com/stylemistake/bash-task-runner/master/src/runner.sh
 [issues]: https://github.com/stylemistake/bash-task-runner/issues
