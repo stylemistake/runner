@@ -30,6 +30,7 @@ runner_cli_help() {
     echo "  -C <dir>, --directory=<dir>  Change to <dir> before doing anything."
     echo "  -f <file>, --file=<file>     Use <file> as a runnerfile."
     echo "  -l, --list-tasks             List available tasks."
+    echo "  --completions=<shell>        Output code to activate task completions, currently Bash only"
     echo "  -h, --help                   Print this message and exit."
     exit 0
 }
@@ -38,6 +39,15 @@ runner_cli_help() {
 runner_cli_list_tasks() {
     trap - EXIT
     runner_get_defined_tasks
+    exit 0
+}
+
+## Outputs code to activate task completions
+runner_cli_get_completions_code() {
+    local shell="${1:-bash}"
+    trap - EXIT
+    local script_directory=$(dirname "${BASH_SOURCE[0]}")
+    echo "source ${script_directory}/../completions/runner.${shell}"
     exit 0
 }
 
@@ -59,6 +69,9 @@ runner_cli_parse_args() {
         ## List tasks
         if [[ ${1} == '-l' || ${1} == '--list-tasks' ]]; then
             runner_list_tasks=true
+        fi
+        if [[ ${1} == '--completions='* ]]; then
+            runner_cli_get_completions_code "${1#*=}"
         fi
         ## Runnerfile override
         if [[ ${1} == '-f' ]]; then
