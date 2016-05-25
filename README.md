@@ -192,6 +192,13 @@ task_default() {
 }
 ```
 
+### 3.7 Bash completion
+
+The `runner` CLI supports autocompletion for task names. Simply include the shipped `completions/runner.bash` file, e.g. in your `~/.bashrc`:
+
+```bash
+source "path/to/bash-task-runner/completions/runner.bash"
+```
 
 ## 4. Example
 
