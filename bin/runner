@@ -11,19 +11,21 @@ else
     alias runner_readlink="greadlink"
 fi
 
-## Resolve the absolute path to the source folder
 if [[ "${FUNCNAME[0]}" == source ]]; then
-    runner_src_dir="$(dirname "$(runner_readlink -f "${BASH_SOURCE[0]}")")/src"
-else
-    runner_src_dir="$(dirname "$(runner_readlink -f "${0}")")/src"
+    echo "Can't source the 'runner' executable."
+    exit 1
 fi
+
+## Resolve the absolute path to the source folder
+runner_src_dir="$(dirname "$(runner_readlink -f "${0}")")/../src"
+
+## Resolve resolved path to remove the '../' part
+runner_src_dir="$(runner_readlink -f "${runner_src_dir}")"
 
 ## Include core files
 # shellcheck source=src/runner.sh
 source "${runner_src_dir}/runner.sh"
 
 ## Include CLI specific files
-if [[ "${FUNCNAME[0]}" != source ]]; then
-    # shellcheck source=src/cli.sh
-    source "${runner_src_dir}/cli.sh"
-fi
+# shellcheck source=src/cli.sh
+source "${runner_src_dir}/cli.sh"
