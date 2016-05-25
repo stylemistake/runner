@@ -13,6 +13,7 @@ declare -ga runner_file_default_names=(
 ## Global variables that hold CLI settings
 declare -g runner_file
 declare -g runner_directory
+declare -g runner_list_tasks
 
 ## Outputs an error message and exits the script
 runner_cli_error() {
@@ -28,7 +29,15 @@ runner_cli_help() {
     echo "Options:"
     echo "  -C <dir>, --directory=<dir>  Change to <dir> before doing anything."
     echo "  -f <file>, --file=<file>     Use <file> as a runnerfile."
+    echo "  -l, --list-tasks             List available tasks."
     echo "  -h, --help                   Print this message and exit."
+    exit 0
+}
+
+## Outputs a list of tasks
+runner_cli_list_tasks() {
+    trap - EXIT
+    runner_get_defined_tasks
     exit 0
 }
 
@@ -46,6 +55,10 @@ runner_cli_parse_args() {
         ## Help message
         if [[ ${1} == '-h' || ${1} == '--help' ]]; then
             runner_cli_help
+        fi
+        ## List tasks
+        if [[ ${1} == '-l' || ${1} == '--list-tasks' ]]; then
+            runner_list_tasks=true
         fi
         ## Runnerfile override
         if [[ ${1} == '-f' ]]; then
@@ -113,3 +126,7 @@ fi
 ## Source the runnerfile
 # shellcheck source=/dev/null
 source "${runner_file}"
+
+if [ -n "${runner_list_tasks}" ]; then
+    runner_cli_list_tasks
+fi
