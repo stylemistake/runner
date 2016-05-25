@@ -9,6 +9,7 @@
   "files": [
     "bin/*",
     "src/*",
+    "completions/*",
     "index.sh"
   ],
   "repository": {
