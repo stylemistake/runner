@@ -200,7 +200,7 @@ task_default() {
 The `runner` CLI supports autocompletion for task names. Simply add the following line your `~/.bashrc`:
 
 ```bash
-eval $(runner --completions=bash)
+eval $(runner --completion=bash)
 ```
 
 ## 4. Example

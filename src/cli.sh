@@ -28,9 +28,10 @@ runner_cli_help() {
     echo "Usage: ${0} [options] [task] [task_options] ..."
     echo "Options:"
     echo "  -C <dir>, --directory=<dir>  Change to <dir> before doing anything."
+    echo "  --completion=<shell>         Output code to activate task completions."
+    echo "                               Supported shells: 'bash'."
     echo "  -f <file>, --file=<file>     Use <file> as a runnerfile."
     echo "  -l, --list-tasks             List available tasks."
-    echo "  --completions=<shell>        Output code to activate task completions, currently Bash only"
     echo "  -h, --help                   Print this message and exit."
     exit 0
 }
@@ -44,10 +45,9 @@ runner_cli_list_tasks() {
 
 ## Outputs code to activate task completions
 runner_cli_get_completions_code() {
-    local shell="${1:-bash}"
     trap - EXIT
-    local script_directory=$(dirname "${BASH_SOURCE[0]}")
-    echo "source ${script_directory}/../completions/runner.${shell}"
+    local shell="${1:-bash}"
+    echo "source ${runner_src_dir}/completion/runner.${shell}"
     exit 0
 }
 
@@ -68,8 +68,9 @@ runner_cli_parse_args() {
         fi
         ## List tasks
         if [[ ${1} == '-l' || ${1} == '--list-tasks' ]]; then
-            runner_list_tasks=true
+            runner_list_tasks="true"
         fi
+        ## Return the completions code
         if [[ ${1} == '--completions='* ]]; then
             runner_cli_get_completions_code "${1#*=}"
         fi
