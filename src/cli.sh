@@ -50,7 +50,7 @@ runner_cli_list_tasks() {
 runner_cli_get_completions_code() {
     trap - EXIT
     local shell="${1:-bash}"
-    echo "source ${runner_src_dir}/completion/runner.${shell}"
+    echo "source ${runner_src_dir}/../completion/runner.${shell}"
     exit 0
 }
 
