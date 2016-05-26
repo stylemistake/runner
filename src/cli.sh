@@ -2,6 +2,9 @@
 
 ## NOTE: This script depends on runner.sh to be loaded first.
 
+## Globals that come from the entry points
+declare -g runner_src_dir
+
 ## Runnerfile names that CLI will be looking for in current directory.
 declare -ga runner_file_default_names=(
     'runnerfile.sh'
@@ -71,7 +74,7 @@ runner_cli_parse_args() {
             runner_list_tasks="true"
         fi
         ## Return the completions code
-        if [[ ${1} == '--completions='* ]]; then
+        if [[ ${1} == '--completion='* ]]; then
             runner_cli_get_completions_code "${1#*=}"
         fi
         ## Runnerfile override
