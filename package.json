@@ -2,7 +2,6 @@
   "name": "bash-task-runner",
   "version": "0.7.1",
   "description": "Simple, lightweight task runner for Bash.",
-  "main": "index.sh",
   "bin": {
     "runner": "bin/runner"
   },
@@ -10,7 +9,6 @@
     "bin/*",
     "src/*",
     "completion/*",
-    "index.sh"
   ],
   "repository": {
     "type": "git",
