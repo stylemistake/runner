@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## NOTE: This script depends on runner.sh to be loaded first.
 

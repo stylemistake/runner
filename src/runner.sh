@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## Mac OS X: fallback on coreutils
 ## Detecting GNU utils http://stackoverflow.com/a/8748344/319952
