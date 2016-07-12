@@ -1,6 +1,6 @@
 # Task runner for Bash
 
-[![Travis](https://img.shields.io/travis/stylemistake/bash-task-runner.svg?maxAge=2592000)][travis]
+[![Travis](https://travis-ci.org/stylemistake/bash-task-runner.svg)][travis]
 [![NPM](https://badge.fury.io/js/bash-task-runner.svg)][npm]
 [![Gitter](https://badges.gitter.im/stylemistake/bash-task-runner.svg)][gitter]
 
