@@ -3,11 +3,12 @@
 ## Expand aliases
 shopt -s expand_aliases
 
-## Alias for resolving symlinks
+## Returns an absolute path to file
 alias runner_realpath="readlink -f"
 
-## Mac OS X: Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
-if ! readlink --version > /dev/null 2>&1; then
+## Fallbacks for GNU readlink
+## Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
+if ! readlink --version >/dev/null 2>&1; then
     if hash greadlink 2>/dev/null; then
         alias runner_realpath="greadlink -f"
     else

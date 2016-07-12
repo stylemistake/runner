@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-## Mac OS X: fallback on coreutils
-## Detecting GNU utils http://stackoverflow.com/a/8748344/319952
-if date --version > /dev/null 2>&1 ; then
-    alias runner_date='date'
-else
-    alias runner_date='gdate'
-fi
-
 ## Default task
 declare -g runner_default_task="default"
 
@@ -51,6 +43,9 @@ runner_log_success() {
 runner_log_notice() {
     runner_log "${runner_colors[gray]}${*}${runner_colors[reset]}"
 }
+
+## Alias for coreutils date
+alias runner_date="date"
 
 ## Returns unix time in ms
 alias runner_time="runner_date +%s%3N"
@@ -225,3 +220,19 @@ runner_bootstrap() {
     ## Nothing to run
     runner_show_defined_tasks
 }
+
+## Fallbacks for GNU date
+## Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
+if ! date --version >/dev/null 2>&1; then
+    if hash gdate 2>/dev/null; then
+        alias runner_date="gdate"
+    else
+        ## Don't use nanoseconds feature of GNU date
+        alias runner_time="runner_date +%s000"
+        ## Don't print milliseconds in log messages
+        runner_log() {
+            local timestamp="$(runner_date +%T)"
+            echo "[${runner_colors[gray]}${timestamp}${runner_colors[reset]}] ${*}"
+        }
+    fi
+fi
