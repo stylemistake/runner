@@ -20,12 +20,6 @@
     "runner",
     "shell"
   ],
-  "author": "Style Mistake <stylemistake@gmail.com>",
-  "contributors": [
-    "Roman Frołow <rofrol@gmail.com>",
-    "Zadkiel Aslafy-Aharonian <aslafy_z@epitech.net>",
-    "Mathias Brodala <mbrodala@pagemachine.de>"
-  ],
   "license": "LGPL-3.0",
   "bugs": {
     "url": "https://github.com/stylemistake/bash-task-runner/issues"
