@@ -33,7 +33,7 @@ runner_log_error() {
 }
 
 runner_log_warning() {
-    runner_log "${runner_colors[yellow]}${*}${runner_colors[reset]}"
+    runner_log "${runner_colors[light_yellow]}${*}${runner_colors[reset]}"
 }
 
 runner_log_success() {
@@ -89,7 +89,7 @@ declare -gA runner_colors=(
     [black]="$(echo -e '\e[30m')"
     [red]="$(echo -e '\e[31m')"
     [green]="$(echo -e '\e[32m')"
-    [brown]="$(echo -e '\e[33m')"
+    [yellow]="$(echo -e '\e[33m')"
     [blue]="$(echo -e '\e[34m')"
     [purple]="$(echo -e '\e[35m')"
     [cyan]="$(echo -e '\e[36m')"
@@ -97,7 +97,7 @@ declare -gA runner_colors=(
     [gray]="$(echo -e '\e[90m')"
     [light_red]="$(echo -e '\e[91m')"
     [light_green]="$(echo -e '\e[92m')"
-    [yellow]="$(echo -e '\e[93m')"
+    [light_yellow]="$(echo -e '\e[93m')"
     [light_blue]="$(echo -e '\e[94m')"
     [light_purple]="$(echo -e '\e[95m')"
     [light_cyan]="$(echo -e '\e[96m')"
