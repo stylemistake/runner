@@ -3,24 +3,28 @@
 ## Expand aliases
 shopt -s expand_aliases
 
-## Mac OS X: fallback on homebrew coreutils
-## Detecting GNU utils http://stackoverflow.com/a/8748344/319952
-if readlink --version > /dev/null 2>&1 ; then
-    alias runner_readlink="readlink"
-else
-    alias runner_readlink="greadlink"
+## Alias for resolving symlinks
+alias runner_realpath="readlink -f"
+
+## Mac OS X: Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
+if ! readlink --version > /dev/null 2>&1; then
+    if hash greadlink 2>/dev/null; then
+        alias runner_realpath="greadlink -f"
+    else
+        alias runner_realpath="perl -MCwd -le 'print Cwd::abs_path(shift)'"
+    fi
 fi
 
 if [[ "${FUNCNAME[0]}" == source ]]; then
-    echo "Can't source the 'runner' executable."
+    echo "Can't source the 'runner' executable. Instead, source 'src/runner.sh' directly."
     exit 1
 fi
 
 ## Resolve the absolute path to the source folder
-runner_src_dir="$(dirname "$(runner_readlink -f "${0}")")/../src"
+runner_src_dir="$(dirname "$(runner_realpath "${0}")")/../src"
 
 ## Resolve resolved path to remove the '../' part
-runner_src_dir="$(runner_readlink -f "${runner_src_dir}")"
+runner_src_dir="$(runner_realpath "${runner_src_dir}")"
 
 ## Include core files
 # shellcheck source=src/runner.sh
