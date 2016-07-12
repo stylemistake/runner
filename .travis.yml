@@ -1,0 +1,13 @@
+language: haskell
+
+ghc:
+  - 7.6
+
+install:
+  - cabal install shellcheck
+
+script:
+  - ./bin/runner
+
+notifications:
+  email: false

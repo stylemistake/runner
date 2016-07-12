@@ -1,5 +1,6 @@
 # Task runner for Bash
 
+[![Travis](https://img.shields.io/travis/stylemistake/bash-task-runner.svg?maxAge=2592000)][travis]
 [![NPM](https://badge.fury.io/js/bash-task-runner.svg)][npm]
 [![Gitter](https://badges.gitter.im/stylemistake/bash-task-runner.svg)][gitter]
 
@@ -288,6 +289,7 @@ This software is covered by [LGPL-3 license][license].
 Style Mistake <[stylemistake@gmail.com]>
 
 
+[travis]: https://travis-ci.org/stylemistake/bash-task-runner
 [gitter]: https://gitter.im/stylemistake/bash-task-runner
 [npm]: https://www.npmjs.com/package/bash-task-runner
 [homebrew]: http://brew.sh/
