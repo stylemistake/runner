@@ -24,24 +24,24 @@ declare -ga runner_tasks
 ## Logs a message with a timestamp
 runner_log() {
     local timestamp="$(runner_date +%T.%3N)"
-    echo "[${runner_colors[gray]}${timestamp}${runner_colors[reset]}] ${*}"
+    echo "[$(runner_colorize gray "${timestamp}")] ${*}"
 }
 
 ## Variations of log with colors
 runner_log_error() {
-    runner_log "${runner_colors[red]}${*}${runner_colors[reset]}"
+    runner_log "$(runner_colorize red "${@}")"
 }
 
 runner_log_warning() {
-    runner_log "${runner_colors[light_yellow]}${*}${runner_colors[reset]}"
+    runner_log "$(runner_colorize light_yellow "${@}")"
 }
 
 runner_log_success() {
-    runner_log "${runner_colors[green]}${*}${runner_colors[reset]}"
+    runner_log "$(runner_colorize green "${@}")"
 }
 
 runner_log_notice() {
-    runner_log "${runner_colors[gray]}${*}${runner_colors[reset]}"
+    runner_log "$(runner_colorize gray "${@}")"
 }
 
 ## Alias for coreutils date
@@ -122,11 +122,11 @@ runner_show_defined_tasks() {
     runner_log "Available tasks:"
     local -a tasks=($(runner_get_defined_tasks))
     if [[ ${#tasks[@]} -eq 0 ]]; then
-        runner_log "  ${runner_colors[light_gray]}<none>${runner_colors[reset]}"
+        runner_log "  $(runner_colorize light_gray \<none\>)"
         return
     fi
     for task in "${tasks[@]}"; do
-        runner_log "  ${runner_colors[cyan]}${task}${runner_colors[reset]}"
+        runner_log "  $(runner_colorize cyan "${task}")"
     done
 }
 
@@ -151,7 +151,7 @@ runner_is_task_defined_verbose() {
 }
 
 runner_run_task() {
-    local task_color="${runner_colors[cyan]}${1}${runner_colors[reset]}"
+    local task_color="$(runner_colorize cyan "${1}")"
     runner_log "Starting '${task_color}'..."
     local -i time_start="$(runner_time)"
     "task_${1}" "${runner_flags[@]}"
@@ -164,7 +164,7 @@ runner_run_task() {
         return ${exit_code}
     fi
     runner_log "Finished '${task_color}'" \
-        "after ${runner_colors[purple]}${time_diff}${runner_colors[reset]}"
+        "after $(runner_colorize purple "${time_diff}")"
 }
 
 ## Run tasks sequentially.
@@ -232,7 +232,7 @@ if ! date --version >/dev/null 2>&1; then
         ## Don't print milliseconds in log messages
         runner_log() {
             local timestamp="$(runner_date +%T)"
-            echo "[${runner_colors[gray]}${timestamp}${runner_colors[reset]}] ${*}"
+            echo "[$(runner_colorize gray "${timestamp}")] ${*}"
         }
     fi
 fi
