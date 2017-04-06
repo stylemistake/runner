@@ -150,7 +150,18 @@ task_foo() {
 ```
 
 If a failed task was a part of a sequence, the whole sequence fails. Same
-applies to the tasks running in parallel.
+applies to the tasks running in parallel. Notice that you use this pattern
+for the whole sequence too to ensure no further code is executed afterwards
+and the overall return code is correctly set:
+
+```bash
+task_foo() {
+    ...
+    runner_sequence foo bar || return
+    ...
+    echo "Won't show up on error above"
+}
+```
 
 The difference in `runner_parallel` is if an error occurs in one of the tasks,
 other tasks continue to run. After all tasks finish, it returns `0` if
