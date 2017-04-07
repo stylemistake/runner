@@ -150,12 +150,12 @@ task_foo() {
 ```
 
 If a failed task was a part of a sequence, the whole sequence fails. Same
-applies to the tasks running in parallel. Notice that you use this pattern
-for the whole sequence too to ensure no further code is executed afterwards
-and the overall return code is correctly set:
+applies to the tasks running in parallel. Notice that you should use this
+pattern for the whole sequence too to ensure no further code is executed
+afterwards and the overall return code is correctly set:
 
 ```bash
-task_foo() {
+task_default() {
     ...
     runner_sequence foo bar || return
     ...
