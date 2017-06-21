@@ -227,11 +227,11 @@ like this:
 
 ```bash
 task_foo() {
-  ## Do something...
+    ## Do something...
 }
 
 task_bar() {
-  ## Do something...
+    ## Do something...
 }
 ```
 
@@ -273,14 +273,14 @@ are provided. There are two ways to do this:
 
 ```bash
 task_default() {
-  # do something ...
+    # do something ...
 }
 ```
 
 ```bash
 runner_default_task="foo"
 task_foo() {
-  # do something ...
+    # do something ...
 }
 ```
 
