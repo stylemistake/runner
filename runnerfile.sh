@@ -10,6 +10,10 @@ task_test() {
     bash test/test.sh >/dev/null
 }
 
+task_readme() {
+    doctoc README.md
+}
+
 task_default() {
     runner_parallel shellcheck test
 }

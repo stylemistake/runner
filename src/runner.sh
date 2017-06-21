@@ -187,7 +187,9 @@ runner_parallel() {
         wait "${pid}" || exits+=1
     done
     [[ ${exits} -eq 0 ]] && return 0
-    [[ ${exits} -lt ${#} ]] && return 41 || return 42
+    [[ ${exits} -eq 1 ]] && return 1
+    [[ ${exits} -lt ${#} ]] && return 2
+    return 3
 }
 
 ## Output command before execution

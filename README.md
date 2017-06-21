@@ -1,24 +1,68 @@
-# Task runner for Bash
+# Runner
 
-[![Travis](https://travis-ci.org/stylemistake/bash-task-runner.svg)][travis]
+[![Travis](https://travis-ci.org/stylemistake/runner.svg)][travis]
 [![NPM](https://badge.fury.io/js/bash-task-runner.svg)][npm]
 [![Gitter](https://badges.gitter.im/stylemistake/bash-task-runner.svg)][gitter]
 
-Simple, lightweight task runner for Bash.
+> A simple, lightweight task runner for Bash.
 
-If you find any bugs, let me know by creating an [issue][issues].
+Runner was made to replace Make in those few use cases, when all you need is a
+bunch of `.PHONY` targets that are simple shell scripts. It uses the familiar
+Bash syntax and only depends on `bash` and `coreutils`.
+
+In addition, Runner provides tools to run tasks in parallel for improved
+performance, nice logging facilities and error handling.
 
 
-## 1. Pre-requisites
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Table of contents
+
+- [1. Dependencies](#1-dependencies)
+- [2. Installation](#2-installation)
+  - [2.1. Simple (vendored)](#21-simple-vendored)
+  - [2.2. Submodule (vendored)](#22-submodule-vendored)
+  - [2.3. Homebrew](#23-homebrew)
+  - [2.4. NPM](#24-npm)
+  - [2.5. Git + PATH](#25-git--path)
+- [3. CLI](#3-cli)
+  - [3.1. Autocompletion](#31-autocompletion)
+  - [3.2. Flag propagation](#32-flag-propagation)
+- [4. Runnerfile](#4-runnerfile)
+  - [4.1. Naming convention](#41-naming-convention)
+  - [4.2. Default task](#42-default-task)
+  - [4.3. Task chaining](#43-task-chaining)
+  - [4.4. Error handling](#44-error-handling)
+- [5. Function reference](#5-function-reference)
+  - [`runner_log [message]`](#runner_log-message)
+  - [`runner_colorize <color> [message]`](#runner_colorize-color-message)
+  - [`runner_run [command]`](#runner_run-command)
+  - [`runner_get_defined_tasks`](#runner_get_defined_tasks)
+  - [`runner_is_defined <name>`](#runner_is_defined-name)
+  - [`runner_is_task_defined [task ...]`](#runner_is_task_defined-task-)
+  - [`runner_sequence [task ...]`](#runner_sequence-task-)
+  - [`runner_parallel [task ...]`](#runner_parallel-task-)
+  - [`runner_bootstrap`](#runner_bootstrap)
+- [FAQ](#faq)
+- [Contribution](#contribution)
+- [License](#license)
+- [Contacts](#contacts)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
+## 1. Dependencies
 
 Runner depends on:
 
-* bash `>=4.0`
-* coreutils `>=8.0`
+- bash `>=4.2`
+- coreutils `>=8.0`
 
-These are very likely to be already installed on your Linux machine.
+For non-GNU environments, it also depends on:
 
-**Note for Mac OS X users:**
+- perl `>=5.0` (for resolving symlinks)
+
+**Note for macOS users:**
 
 Use [Homebrew] to install the dependencies:
 
@@ -29,54 +73,165 @@ brew install bash coreutils
 
 ## 2. Installation
 
-There are many different ways to use `runner` in your project.
+Each of the below installation methods is differentiated along two properties:
 
-Using `npm`:
+- **Local to project**
+  - Whether Runner will be installed locally to your project or globally on a
+    system.
+  - This is good for CI builds and spinning up multiple people on your project
+- **CLI-enabled**
+  - Whether you will be able to use the `runner` command from your prompt.
+  - Useful for local development, tab completion, and convenience.
+
+You may want to combine multiple installation methods in order to satisfy both
+of these requirements. In particular, we recommend [**Simple
+(vendored)**](#simple-vendored) with a method that gives you a CLI and is
+compatible with your system.
+
+|                      | Local to Project   | CLI-enabled        |
+| ---                  | ---                | ---                |
+| Simple (vendored)    | :white_check_mark: | :no_entry_sign:    |
+| Submodule (vendored) | :white_check_mark: | :white_check_mark: |
+| Homebrew             | :no_entry_sign:    | :white_check_mark: |
+| NPM                  | :white_check_mark: | :white_check_mark: |
+| Git + PATH           | :no_entry_sign:    | :white_check_mark: |
+
+### 2.1. Simple (vendored)
+
+Just drop `src/runner.sh` anywhere in your project folder:
 
 ```bash
-## To install to your project folder
-npm install --save-dev bash-task-runner
+wget https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
+```
 
-## To install globally
+Then skip to [Runnerfile](#4-cli) for how to use a vendored Runner installation.
+
+### 2.2. Submodule (vendored)
+
+If you'd like a slightly better story around updating Runner when vendored, you
+can use a Git submodule, if you're [familiar with submodules][submodules]:
+
+```bash
+git submodule add https://github.com/stylemistake/runner
+```
+
+> Note that if submodules are too heavy-handed, you can get the same effect
+> (without the ease of updating) by just unzip'ing Runner's source into your
+> project.
+
+You should now be able to access `runner.sh` within the submodule. Additionally,
+you can access the CLI with `./runner/bin/runner`. You can make this more
+ergonomic by altering your PATH:
+
+```bash
+export PATH="$PATH:./runner/bin"
+```
+
+Then skip to [CLI](#3-cli) to learn how to use the CLI.
+
+### 2.3. Homebrew
+
+On OS X, installing Runner globally is simple if you have Homebrew:
+
+```bash
+brew install stylemistake/runner-brew/runner
+```
+
+Then skip to [CLI](#3-cli) to learn how to use the CLI.
+
+### 2.4. NPM
+
+If you don't mind the additional dependency on the NPM ecosystem, you can
+install Runner with NPM:
+
+```bash
+# --- Local to Project --- #
+npm install --save bash-task-runner
+
+# to enable CLI:
+export PATH="PATH:./node_modules/.bin"
+
+# --- Global --- #
 npm install -g bash-task-runner
 ```
 
-Alternatively, you can simply download the [src/runner.sh] file
-and place it inside your project folder.
+Then skip to [CLI](#3-cli) to learn how to use the CLI.
 
+### 2.5. Git + PATH
 
-## 3. Usage
-
-### 3.1. Setup
-
-Create an empty bash script (`runnerfile.sh`), which is an entry point for the
-task runner.
-
-*Optional*: If you want the `runnerfile.sh` to be a self-contained script, add
-this to the beginning:
+If Runner is not available in a package manager for your system, you can clone
+Runner to your computer, and adjust your PATH to contain the installation
+location:
 
 ```bash
-#!/bin/bash
-cd `dirname ${0}`
-source <path_to>/runner.sh
+git clone https://github.com/stylemistake/runner
+
+export PATH="$PATH:$(pwd)/runner/bin"
+```
+
+Then skip to [CLI](#3-cli) to learn how to use the CLI.
+
+
+## 3. CLI
+
+NOTE: Please see `runner -h` for complete, up-to-date CLI usage information.
+
+```
+Usage: runner [options] [task] [task_options] ...
+Options:
+  -C <dir>, --directory=<dir>  Change to <dir> before doing anything.
+  --completion=<shell>         Output code to activate task completions.
+                               Supported shells: 'bash'.
+  -f <file>, --file=<file>     Use <file> as a runnerfile.
+  -l, --list-tasks             List available tasks.
+  -h, --help                   Print this message and exit.
+```
+
+### 3.1. Autocompletion
+
+The `runner` CLI supports autocompletion for task names and flags.
+Add the following line your `~/.bashrc`:
+
+```bash
+eval $(runner --completion=bash)
+```
+
+### 3.2. Flag propagation
+
+All flags you pass after the task name are passed to your tasks.
+
+```bash
+$ runner foo --production
+
+task_foo() {
+    echo ${@} # --production
+}
+```
+
+To pass options to the `runner` CLI specifically, you must provide them
+before any task names:
+
+```bash
+$ runner -f scripts/tasks.sh foo
 ```
 
 
-### 3.2. Basics
+## 4. Runnerfile
 
-Create some tasks:
+Runner works in conjunction with a `runnerfile.sh`. A basic runnerfile looks
+like this:
 
 ```bash
 task_foo() {
-    ## Do something...
+  ## Do something...
 }
 
 task_bar() {
-    ## Do something...
+  ## Do something...
 }
 ```
 
-Then you can run tasks with the `runner` tool:
+Invoke Runner using `runner [task ...]`:
 
 ```bash
 $ runner foo bar
@@ -86,28 +241,46 @@ $ runner foo bar
 [23:43:37.757] Finished 'bar' after 1 ms
 ```
 
-Or in case your script sources the task runner:
+**Optional**: If you want the `runnerfile.sh` to be a standalone script, add
+this to the beginning (works best in conjunction with a vendored installation):
 
 ```bash
-$ bash runnerfile.sh foo bar
+#!/usr/bin/env bash
+cd "$(dirname "$0")" || exit
+source <path_to>/runner.sh
 ```
 
-You can define a default task. It will run if no arguments were provided to the
-task runner:
+To invoke such script, use `bash runnerfile.sh [task ...]`.
+
+### 4.1. Naming convention
+
+Your Runnerfile can be named any of the following. Using a `.sh` suffix helps
+with editor syntax highlighting.
+
+- `Runnerfile`
+- `Runnerfile.sh`
+- `runnerfile`
+- `runnerfile.sh`
+
+### 4.2. Default task
+
+You can specify a default task in your Runnerfile. It will run when no arguments
+are provided. There are two ways to do this:
 
 ```bash
 task_default() {
-    ## Do something...
+  # do something ...
 }
 ```
 
-You can change which task is default:
-
 ```bash
 runner_default_task="foo"
+task_foo() {
+  # do something ...
+}
 ```
 
-### 3.3. Task chaining
+### 4.3. Task chaining
 
 Tasks can launch other tasks in two ways: *sequentially* and in *parallel*.
 This way you can optimize the task flow for maximum concurrency.
@@ -136,10 +309,10 @@ task_default() {
 }
 ```
 
-### 3.4. Error handling
+### 4.4. Error handling
 
-Sometimes you need to stop the whole task if some of the commands fails.
-You can achieve this with a simple conditional return:
+Sometimes you need to stop the task if one of the commands fails.
+You can achieve this with a conditional return:
 
 ```bash
 task_foo() {
@@ -150,9 +323,11 @@ task_foo() {
 ```
 
 If a failed task was a part of a sequence, the whole sequence fails. Same
-applies to the tasks running in parallel. Notice that you should use this
-pattern for the whole sequence too to ensure no further code is executed
-afterwards and the overall return code is correctly set:
+applies to the tasks running in parallel.
+
+Notice that you should use this pattern for the whole sequence too to ensure
+no further code is executed afterwards and the overall return code is
+correctly set:
 
 ```bash
 task_default() {
@@ -163,136 +338,129 @@ task_default() {
 }
 ```
 
-The difference in `runner_parallel` is if an error occurs in one of the tasks,
-other tasks continue to run. After all tasks finish, it returns `0` if
-none have failed, `41` if some have failed and `42` if all have failed.
 
-### 3.5. Flags
+## 5. Function reference
 
-All flags you pass after the task name are passed to your tasks.
+### `runner_log [message]`
 
-```bash
-$ runner foo --production
+Prints a message with a timestamp. Variations of log with colors:
 
-task_foo() {
-    echo ${@} # --production
-}
-```
+- `runner_log_error` (red)
+- `runner_log_warning` (yellow)
+- `runner_log_success` (green)
+- `runner_log_notice` (gray)
 
-To pass options to the `runner` CLI specifically, you must provide them
-before any task names:
+### `runner_colorize <color> [message]`
 
-```bash
-$ runner -f scripts/tasks.sh foo
-```
+Colorizes the message into the specified color. Here's a list of colors:
 
-To get all possible `runner` CLI options, use the `-h` (help) flag:
+- `black`
+- `red`
+- `green`
+- `yellow`
+- `blue`
+- `purple`
+- `cyan`
+- `light_gray`
+- `gray`
+- `light_red`
+- `light_green`
+- `light_yellow`
+- `light_blue`
+- `light_purple`
+- `light_cyan`
+- `white`
+- `reset`
 
-```bash
-$ runner -h
-```
-
-### 3.6. Command echoing
+### `runner_run [command]`
 
 `runner_run` command gives a way to run commands and have them outputted:
 
 ```bash
 task_default() {
-  runner_run composer install
-  ## [12:19:17.170] Starting 'default'...
-  ## [12:19:17.173] composer install
-  ## Loading composer repositories with package information
-  ## ...
-  ## [12:19:17.932] Finished 'default' after 758 ms
+    runner_run composer install
+    ## [12:19:17.170] Starting 'default'...
+    ## [12:19:17.173] composer install
+    ## Loading composer repositories with package information
+    ## ...
+    ## [12:19:17.932] Finished 'default' after 758 ms
 }
 ```
 
-### 3.7 Bash completion
+### `runner_get_defined_tasks`
 
-The `runner` CLI supports autocompletion for task names. Simply add the following line your `~/.bashrc`:
+Lists all functions beginning with `task_`.
+
+### `runner_is_defined <name>`
+
+Checks if function is defined or program is accessible from current `$PATH`.
+
+### `runner_is_task_defined [task ...]`
+
+Checks if task name is defined.
+
+### `runner_sequence [task ...]`
+
+Runs tasks sequentially. If any task in the sequence fails, it stops execution
+and returns an error code of a failed task.
+
+### `runner_parallel [task ...]`
+
+Runs tasks in parallel, and lets them finish even if any error occurs. In case
+of an error, this command returns special error codes to determine how many
+tasks have failed.
+
+Error codes:
+
+- `1` - one task failed
+- `2` - some tasks failed
+- `3` - all tasks failed
+
+### `runner_bootstrap`
+
+Bootstraps the task runner. This can be used to override the default mechanism
+of startup.
+
+By default, task runner starts up when it reaches the end of a Runnerfile.
+By using `runner_bootstrap`, you can manually choose a point where it begins
+to run tasks:
 
 ```bash
-eval $(runner --completion=bash)
-```
-
-## 4. Example
-
-This is a real world script that automates the initial setup of a
-Laravel project.
-
-```bash
-#!/bin/bash
-cd `dirname ${0}`
-source runner.sh
-
-NPM_GLOBAL_PACKAGES="gulp bower node-gyp"
-
 task_default() {
-    runner_parallel php node || return
-    if ! runner_is_defined ${NPM_GLOBAL_PACKAGES}; then
-        runner_log_warning "Please install these packages manually:"
-        runner_log "'npm install -g ${NPM_GLOBAL_PACKAGES}'"
-        exit 1
-    fi
-}
-
-task_php() {
-    runner_sequence php_{composer,vendor} || return
-    if [[ ! -e ".env" ]]; then
-        cp .env.example .env
-        runner_run php artisan key:generate
-    fi
-}
-
-task_php_composer() {
-    if [[ ! -e "composer.phar" ]]; then
-        php -r "readfile('https://getcomposer.org/installer');" | php
-    fi
-}
-
-task_php_vendor() {
-    runner_run php composer.phar install
-}
-
-task_node() {
-    runner_parallel node_{npm,bower}
-}
-
-task_node_npm() {
-    if [[ "${1}" == "--virtualbox" ]]; then
-        local npm_options="--no-bin-links"
-        runner_log_warning "Using npm options: ${npm_options}"
-    fi
-    npm install ${npm_options}
-}
-
-task_node_bower() {
-    bower install
+    ## Do things...
 }
 
 runner_bootstrap
-runner_log_success "Success!"
+
+if [[ ${?} -eq 0 ]]; then
+    echo "Success! :)"
+else
+    echo "Failure! :("
+fi
 ```
 
+In example above, we used `runner_bootstrap` to handle the task runner's exit
+code. You can use this to handle errors, do cleanup work or restart certain
+tasks when needed.
 
-## 5. FAQ
+
+## FAQ
 
 Read the [FAQ]
 
 
-## 6. Contribution
+## Contribution
 
 Please provide pull requests in a separate branch (other than `master`), this
-way it's more manageable for me to review and pull.
+way it's easier for me to review and pull changes.
 
-Before writing code, open an [issue][issues] to get initial feedback and
-resolve potential problems. Write all feature related comments there, not into
-pull-request.
+Before writing code, open an [issue][issues] to get initial feedback.
 
 
-## 7. License
+## License
 
-This software is covered by [LGPL-3 license][license].
+This software is covered by GNU Lesser General Public License v3 (LGPL-3.0).
+See [LICENSE.md].
 
 
 ## Contacts
@@ -300,14 +468,13 @@ This software is covered by [LGPL-3 license][license].
 Style Mistake <[stylemistake@gmail.com]>
 
 
-[travis]: https://travis-ci.org/stylemistake/bash-task-runner
+[travis]: https://travis-ci.org/stylemistake/runner
 [gitter]: https://gitter.im/stylemistake/bash-task-runner
 [npm]: https://www.npmjs.com/package/bash-task-runner
 [homebrew]: http://brew.sh/
-[src/runner.sh]: https://raw.githubusercontent.com/stylemistake/bash-task-runner/master/src/runner.sh
-[issues]: https://github.com/stylemistake/bash-task-runner/issues
+[src/runner.sh]: https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
+[issues]: https://github.com/stylemistake/runner/issues
 [manuel]: https://github.com/ShaneKilkelly/manuel
-[faq]: https://github.com/stylemistake/bash-task-runner/wiki/FAQ
-[license]: LICENSE.md
-[stylemistake.com]: http://stylemistake.com
+[faq]: https://github.com/stylemistake/runner/wiki/FAQ
+[LICENSE.md]: LICENSE.md
 [stylemistake@gmail.com]: mailto:stylemistake@gmail.com
