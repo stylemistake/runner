@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Default task
-declare -g runner_default_task="default"
+declare runner_default_task="default"
 
 ## Trap EXIT signal to bootstrap the runner.
 ## Works like a charm - your script ends, tasks start to run.
@@ -12,14 +12,14 @@ trap '[[ ${?} -eq 0 ]] && runner_bootstrap' EXIT
 shopt -s expand_aliases
 
 ## Determine the initial passed arguments to the root script
-declare -ga runner_args=("${@}")
+declare -a runner_args=("${@}")
 
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
 ## E.g. --production
 ## NOTE: The actual splitting is done in runner_bootstrap.
-declare -ga runner_flags
-declare -ga runner_tasks
+declare -a runner_flags
+declare -a runner_tasks
 
 ## Logs a message with a timestamp
 runner_log() {
@@ -85,29 +85,37 @@ runner_pretty_ms() {
     echo "${result}"
 }
 
-declare -gA runner_colors=(
-    [black]="$(echo -e '\e[30m')"
-    [red]="$(echo -e '\e[31m')"
-    [green]="$(echo -e '\e[32m')"
-    [yellow]="$(echo -e '\e[33m')"
-    [blue]="$(echo -e '\e[34m')"
-    [purple]="$(echo -e '\e[35m')"
-    [cyan]="$(echo -e '\e[36m')"
-    [light_gray]="$(echo -e '\e[37m')"
-    [gray]="$(echo -e '\e[90m')"
-    [light_red]="$(echo -e '\e[91m')"
-    [light_green]="$(echo -e '\e[92m')"
-    [light_yellow]="$(echo -e '\e[93m')"
-    [light_blue]="$(echo -e '\e[94m')"
-    [light_purple]="$(echo -e '\e[95m')"
-    [light_cyan]="$(echo -e '\e[96m')"
-    [white]="$(echo -e '\e[97m')"
-    [reset]="$(echo -e '\e[0m')"
-)
+## Color definitions and colorize function
+## NOTE: Associative arrays only work on Bash 4
+if ((BASH_VERSINFO[0] >= 4)); then
+    declare -A runner_colors=(
+        [black]="$(echo -e '\e[30m')"
+        [red]="$(echo -e '\e[31m')"
+        [green]="$(echo -e '\e[32m')"
+        [yellow]="$(echo -e '\e[33m')"
+        [blue]="$(echo -e '\e[34m')"
+        [purple]="$(echo -e '\e[35m')"
+        [cyan]="$(echo -e '\e[36m')"
+        [light_gray]="$(echo -e '\e[37m')"
+        [gray]="$(echo -e '\e[90m')"
+        [light_red]="$(echo -e '\e[91m')"
+        [light_green]="$(echo -e '\e[92m')"
+        [light_yellow]="$(echo -e '\e[93m')"
+        [light_blue]="$(echo -e '\e[94m')"
+        [light_purple]="$(echo -e '\e[95m')"
+        [light_cyan]="$(echo -e '\e[96m')"
+        [white]="$(echo -e '\e[97m')"
+        [reset]="$(echo -e '\e[0m')"
+    )
 
-runner_colorize() {
-    echo "${runner_colors[$1]}${*:2}${runner_colors[reset]}"
-}
+    runner_colorize() {
+        echo "${runner_colors[$1]}${*:2}${runner_colors[reset]}"
+    }
+else
+    runner_colorize() {
+        echo "${*:2}"
+    }
+fi
 
 ## List all defined functions beginning with `task_`
 runner_get_defined_tasks() {

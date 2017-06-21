@@ -3,10 +3,10 @@
 ## NOTE: This script depends on runner.sh to be loaded first.
 
 ## Globals that come from the entry points
-declare -g runner_src_dir
+declare runner_src_dir
 
 ## Runnerfile names that CLI will be looking for in current directory.
-declare -ga runner_file_default_names=(
+declare -a runner_file_default_names=(
     'runnerfile.sh'
     'Runnerfile.sh'
     'runnerfile'
@@ -14,9 +14,9 @@ declare -ga runner_file_default_names=(
 )
 
 ## Global variables that hold CLI settings
-declare -g runner_file
-declare -g runner_directory
-declare -g runner_list_tasks
+declare runner_file
+declare runner_directory
+declare runner_list_tasks
 
 ## Outputs an error message and exits the script
 runner_cli_error() {

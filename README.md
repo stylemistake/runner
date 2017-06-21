@@ -64,11 +64,14 @@ For non-GNU environments, it also depends on:
 
 **Note for macOS users:**
 
-Use [Homebrew] to install the dependencies:
+For improved experience, use [Homebrew] to install the missing dependencies:
 
 ```bash
 brew install bash coreutils
 ```
+
+Runner should work with bash version 3.2 and macOS version of coreutils, but
+that way you will miss a lot of the fancy stuff that comes with the Runner.
 
 
 ## 2. Installation
@@ -104,7 +107,8 @@ Just drop `src/runner.sh` anywhere in your project folder:
 wget https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
 ```
 
-Then skip to [Runnerfile](#4-runnerfile) for how to use a vendored Runner installation.
+Then skip to [Runnerfile](#4-runnerfile) for how to use a vendored Runner
+installation.
 
 ### 2.2. Submodule (vendored)
 
