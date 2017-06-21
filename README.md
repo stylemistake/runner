@@ -7,7 +7,7 @@
 > A simple, lightweight task runner for Bash.
 
 Runner was made to replace Make in those few use cases, when all you need is a
-bunch of `.PHONY` targets that are simple shell scripts. It uses the familiar
+bunch of `.PHONY` targets that are simple shell scripts. It uses a familiar
 Bash syntax and only depends on `bash` and `coreutils`.
 
 In addition, Runner provides tools to run tasks in parallel for improved
@@ -84,9 +84,9 @@ Each of the below installation methods is differentiated along two properties:
   - Useful for local development, tab completion, and convenience.
 
 You may want to combine multiple installation methods in order to satisfy both
-of these requirements. In particular, we recommend [**Simple
-(vendored)**](#simple-vendored) with a method that gives you a CLI and is
-compatible with your system.
+of these requirements. In particular, we recommend
+[**Simple (vendored)**](#21-simple-vendored) with a method that gives you
+a CLI and is compatible with your system.
 
 |                      | Local to Project   | CLI-enabled        |
 | ---                  | ---                | ---                |
@@ -104,7 +104,7 @@ Just drop `src/runner.sh` anywhere in your project folder:
 wget https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
 ```
 
-Then skip to [Runnerfile](#4-cli) for how to use a vendored Runner installation.
+Then skip to [Runnerfile](#4-runnerfile) for how to use a vendored Runner installation.
 
 ### 2.2. Submodule (vendored)
 
@@ -352,7 +352,7 @@ Prints a message with a timestamp. Variations of log with colors:
 
 ### `runner_colorize <color> [message]`
 
-Colorizes the message into the specified color. Here's a list of colors:
+Colorizes the message with the specified color. Here's a list of colors:
 
 - `black`
 - `red`
@@ -370,7 +370,6 @@ Colorizes the message into the specified color. Here's a list of colors:
 - `light_purple`
 - `light_cyan`
 - `white`
-- `reset`
 
 ### `runner_run [command]`
 
@@ -407,19 +406,18 @@ and returns an error code of a failed task.
 ### `runner_parallel [task ...]`
 
 Runs tasks in parallel, and lets them finish even if any error occurs. In case
-of an error, this command returns special error codes to determine how many
-tasks have failed.
+of an error, this command returns a special error code.
 
 Error codes:
 
-- `1` - one task failed
-- `2` - some tasks failed
-- `3` - all tasks failed
+- `1` - one task has failed
+- `2` - some tasks have failed
+- `3` - all tasks have failed
 
 ### `runner_bootstrap`
 
-Bootstraps the task runner. This can be used to override the default mechanism
-of startup.
+Launches the task runner. This can be used to override the default startup
+mechanism.
 
 By default, task runner starts up when it reaches the end of a Runnerfile.
 By using `runner_bootstrap`, you can manually choose a point where it begins
@@ -430,7 +428,7 @@ task_default() {
     ## Do things...
 }
 
-runner_bootstrap
+runner_bootstrap ## <-- runs tasks here
 
 if [[ ${?} -eq 0 ]]; then
     echo "Success! :)"
@@ -439,9 +437,9 @@ else
 fi
 ```
 
-In example above, we used `runner_bootstrap` to handle the task runner's exit
-code. You can use this to handle errors, do cleanup work or restart certain
-tasks when needed.
+In example above, we used `runner_bootstrap` to create a code section, which
+handles the runner's exit code. You can use this to handle errors, do
+cleanup work or restart certain tasks when needed.
 
 
 ## FAQ
@@ -474,7 +472,7 @@ Style Mistake <[stylemistake@gmail.com]>
 [homebrew]: http://brew.sh/
 [src/runner.sh]: https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
 [issues]: https://github.com/stylemistake/runner/issues
-[manuel]: https://github.com/ShaneKilkelly/manuel
+[submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [faq]: https://github.com/stylemistake/runner/wiki/FAQ
 [LICENSE.md]: LICENSE.md
 [stylemistake@gmail.com]: mailto:stylemistake@gmail.com
