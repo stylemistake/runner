@@ -64,14 +64,14 @@ For non-GNU environments, it also depends on:
 
 **Note for macOS users:**
 
+Runner should work with bash version 3.2 and macOS version of coreutils, but
+that way you will miss a lot of the fancy stuff that comes with the Runner.
+
 For improved experience, use [Homebrew] to install the missing dependencies:
 
 ```bash
 brew install bash coreutils
 ```
-
-Runner should work with bash version 3.2 and macOS version of coreutils, but
-that way you will miss a lot of the fancy stuff that comes with the Runner.
 
 
 ## 2. Installation
@@ -138,7 +138,7 @@ Then skip to [CLI](#3-cli) to learn how to use the CLI.
 On OS X, installing Runner globally is simple if you have Homebrew:
 
 ```bash
-brew install stylemistake/runner-brew/runner
+brew install stylemistake/formulae/runner
 ```
 
 Then skip to [CLI](#3-cli) to learn how to use the CLI.
