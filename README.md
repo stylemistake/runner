@@ -18,32 +18,31 @@ performance, nice logging facilities and error handling.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Table of contents
 
-- [1. Dependencies](#1-dependencies)
-- [2. Installation](#2-installation)
-  - [2.1. Simple (vendored)](#21-simple-vendored)
-  - [2.2. Submodule (vendored)](#22-submodule-vendored)
-  - [2.3. Homebrew](#23-homebrew)
-  - [2.4. NPM](#24-npm)
-  - [2.5. Git + PATH](#25-git--path)
-- [3. CLI](#3-cli)
-  - [3.1. Autocompletion](#31-autocompletion)
-  - [3.2. Flag propagation](#32-flag-propagation)
-- [4. Runnerfile](#4-runnerfile)
-  - [4.1. Naming convention](#41-naming-convention)
-  - [4.2. Default task](#42-default-task)
-  - [4.3. Task chaining](#43-task-chaining)
-  - [4.4. Error handling](#44-error-handling)
-- [5. Function reference](#5-function-reference)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+  - [Simple (vendored)](#simple-vendored)
+  - [Submodule (vendored)](#submodule-vendored)
+  - [Homebrew](#homebrew)
+  - [NPM](#npm)
+  - [Git + PATH](#git--path)
+- [CLI](#cli)
+  - [Autocompletion](#autocompletion)
+  - [Flag propagation](#flag-propagation)
+- [Runnerfile](#runnerfile)
+  - [Naming convention](#naming-convention)
+  - [Default task](#default-task)
+  - [Task chaining](#task-chaining)
+  - [Error handling](#error-handling)
+- [Function reference](#function-reference)
   - [`runner_log [message]`](#runner_log-message)
   - [`runner_colorize <color> [message]`](#runner_colorize-color-message)
   - [`runner_run [command]`](#runner_run-command)
   - [`runner_get_defined_tasks`](#runner_get_defined_tasks)
   - [`runner_is_defined <name>`](#runner_is_defined-name)
-  - [`runner_is_task_defined [task ...]`](#runner_is_task_defined-task-)
-  - [`runner_sequence [task ...]`](#runner_sequence-task-)
-  - [`runner_parallel [task ...]`](#runner_parallel-task-)
+  - [`runner_is_task_defined [task...]`](#runner_is_task_defined-task-)
+  - [`runner_sequence [task...]`](#runner_sequence-task-)
+  - [`runner_parallel [task...]`](#runner_parallel-task-)
   - [`runner_bootstrap`](#runner_bootstrap)
-- [FAQ](#faq)
 - [Contribution](#contribution)
 - [License](#license)
 - [Contacts](#contacts)
@@ -51,7 +50,7 @@ performance, nice logging facilities and error handling.
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
-## 1. Dependencies
+## Dependencies
 
 Runner depends on:
 
@@ -74,7 +73,7 @@ brew install bash coreutils
 ```
 
 
-## 2. Installation
+## Installation
 
 Each of the below installation methods is differentiated along two properties:
 
@@ -88,7 +87,7 @@ Each of the below installation methods is differentiated along two properties:
 
 You may want to combine multiple installation methods in order to satisfy both
 of these requirements. In particular, we recommend
-[**Simple (vendored)**](#21-simple-vendored) with a method that gives you
+[**Simple (vendored)**](#simple-vendored) with a method that gives you
 a CLI and is compatible with your system.
 
 |                      | Local to Project   | CLI-enabled        |
@@ -99,7 +98,7 @@ a CLI and is compatible with your system.
 | NPM                  | :white_check_mark: | :white_check_mark: |
 | Git + PATH           | :no_entry_sign:    | :white_check_mark: |
 
-### 2.1. Simple (vendored)
+### Simple (vendored)
 
 Just drop `src/runner.sh` anywhere in your project folder:
 
@@ -107,10 +106,10 @@ Just drop `src/runner.sh` anywhere in your project folder:
 wget https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
 ```
 
-Then skip to [Runnerfile](#4-runnerfile) for how to use a vendored Runner
+Then skip to [Runnerfile](#runnerfile) for how to use a vendored Runner
 installation.
 
-### 2.2. Submodule (vendored)
+### Submodule (vendored)
 
 If you'd like a slightly better story around updating Runner when vendored, you
 can use a Git submodule, if you're [familiar with submodules][submodules]:
@@ -131,9 +130,9 @@ ergonomic by altering your PATH:
 export PATH="$PATH:./runner/bin"
 ```
 
-Then skip to [CLI](#3-cli) to learn how to use the CLI.
+Then skip to [CLI](#cli) to learn how to use the CLI.
 
-### 2.3. Homebrew
+### Homebrew
 
 On OS X, installing Runner globally is simple if you have Homebrew:
 
@@ -141,9 +140,9 @@ On OS X, installing Runner globally is simple if you have Homebrew:
 brew install stylemistake/formulae/runner
 ```
 
-Then skip to [CLI](#3-cli) to learn how to use the CLI.
+Then skip to [CLI](#cli) to learn how to use the CLI.
 
-### 2.4. NPM
+### NPM
 
 If you don't mind the additional dependency on the NPM ecosystem, you can
 install Runner with NPM:
@@ -159,9 +158,9 @@ export PATH="PATH:./node_modules/.bin"
 npm install -g bash-task-runner
 ```
 
-Then skip to [CLI](#3-cli) to learn how to use the CLI.
+Then skip to [CLI](#cli) to learn how to use the CLI.
 
-### 2.5. Git + PATH
+### Git + PATH
 
 If Runner is not available in a package manager for your system, you can clone
 Runner to your computer, and adjust your PATH to contain the installation
@@ -173,12 +172,12 @@ git clone https://github.com/stylemistake/runner
 export PATH="$PATH:$(pwd)/runner/bin"
 ```
 
-Then skip to [CLI](#3-cli) to learn how to use the CLI.
+Then skip to [CLI](#cli) to learn how to use the CLI.
 
 
-## 3. CLI
+## CLI
 
-NOTE: Please see `runner -h` for complete, up-to-date CLI usage information.
+Please see `runner -h` for complete, up-to-date CLI usage information.
 
 ```
 Usage: runner [options] [task] [task_options] ...
@@ -191,7 +190,7 @@ Options:
   -h, --help                   Print this message and exit.
 ```
 
-### 3.1. Autocompletion
+### Autocompletion
 
 The `runner` CLI supports autocompletion for task names and flags.
 Add the following line your `~/.bashrc`:
@@ -200,7 +199,7 @@ Add the following line your `~/.bashrc`:
 eval $(runner --completion=bash)
 ```
 
-### 3.2. Flag propagation
+### Flag propagation
 
 All flags you pass after the task name are passed to your tasks.
 
@@ -220,9 +219,9 @@ $ runner -f scripts/tasks.sh foo
 ```
 
 
-## 4. Runnerfile
+## Runnerfile
 
-Runner works in conjunction with a `runnerfile.sh`. A basic runnerfile looks
+Runner works in conjunction with a `runnerfile.sh`. A basic Runnerfile looks
 like this:
 
 ```bash
@@ -235,7 +234,7 @@ task_bar() {
 }
 ```
 
-Invoke Runner using `runner [task ...]`:
+Invoke Runner using `runner [task...]`:
 
 ```bash
 $ runner foo bar
@@ -245,7 +244,7 @@ $ runner foo bar
 [23:43:37.757] Finished 'bar' after 1 ms
 ```
 
-**Optional**: If you want the `runnerfile.sh` to be a standalone script, add
+**Optional**: If you want the Runnerfile to be a standalone script, add
 this to the beginning (works best in conjunction with a vendored installation):
 
 ```bash
@@ -254,9 +253,9 @@ cd "$(dirname "$0")" || exit
 source <path_to>/runner.sh
 ```
 
-To invoke such script, use `bash runnerfile.sh [task ...]`.
+To invoke such script, use `bash runnerfile.sh [task...]`.
 
-### 4.1. Naming convention
+### Naming convention
 
 Your Runnerfile can be named any of the following. Using a `.sh` suffix helps
 with editor syntax highlighting.
@@ -266,7 +265,7 @@ with editor syntax highlighting.
 - `runnerfile`
 - `runnerfile.sh`
 
-### 4.2. Default task
+### Default task
 
 You can specify a default task in your Runnerfile. It will run when no arguments
 are provided. There are two ways to do this:
@@ -284,7 +283,7 @@ task_foo() {
 }
 ```
 
-### 4.3. Task chaining
+### Task chaining
 
 Tasks can launch other tasks in two ways: *sequentially* and in *parallel*.
 This way you can optimize the task flow for maximum concurrency.
@@ -313,7 +312,7 @@ task_default() {
 }
 ```
 
-### 4.4. Error handling
+### Error handling
 
 Sometimes you need to stop the task if one of the commands fails.
 You can achieve this with a conditional return:
@@ -343,7 +342,7 @@ task_default() {
 ```
 
 
-## 5. Function reference
+## Function reference
 
 ### `runner_log [message]`
 
@@ -398,16 +397,16 @@ Lists all functions beginning with `task_`.
 
 Checks if function is defined or program is accessible from current `$PATH`.
 
-### `runner_is_task_defined [task ...]`
+### `runner_is_task_defined [task...]`
 
 Checks if task name is defined.
 
-### `runner_sequence [task ...]`
+### `runner_sequence [task...]`
 
 Runs tasks sequentially. If any task in the sequence fails, it stops execution
 and returns an error code of a failed task.
 
-### `runner_parallel [task ...]`
+### `runner_parallel [task...]`
 
 Runs tasks in parallel, and lets them finish even if any error occurs. In case
 of an error, this command returns a special error code.
@@ -444,11 +443,6 @@ fi
 In example above, we used `runner_bootstrap` to create a code section, which
 handles the runner's exit code. You can use this to handle errors, do
 cleanup work or restart certain tasks when needed.
-
-
-## FAQ
-
-Read the [FAQ]
 
 
 ## Contribution
