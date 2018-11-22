@@ -128,7 +128,9 @@ runner_get_defined_tasks() {
 ## Fancy wrapper for `runner_get_defined_tasks`
 runner_show_defined_tasks() {
     runner_log "Available tasks:"
-    local -a tasks=($(runner_get_defined_tasks))
+    local -a tasks
+    ## Shellcheck pattern SC2207 to read an array
+    IFS=" " read -r -a tasks <<< "$(runner_get_defined_tasks)"
     if [[ ${#tasks[@]} -eq 0 ]]; then
         runner_log "  $(runner_colorize light_gray \<none\>)"
         return
