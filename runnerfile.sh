@@ -17,3 +17,7 @@ task_readme() {
 task_default() {
     runner_parallel shellcheck test
 }
+
+task_update_version() {
+    git describe --tags > VERSION
+}

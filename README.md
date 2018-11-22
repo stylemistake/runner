@@ -187,6 +187,7 @@ Options:
                                Supported shells: 'bash'.
   -f <file>, --file=<file>     Use <file> as a runnerfile.
   -l, --list-tasks             List available tasks.
+  -v, --version                Print the version of runner used 
   -h, --help                   Print this message and exit.
 ```
 
