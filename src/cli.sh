@@ -35,6 +35,7 @@ runner_cli_help() {
     echo "                               Supported shells: 'bash'."
     echo "  -f <file>, --file=<file>     Use <file> as a runnerfile."
     echo "  -l, --list-tasks             List available tasks."
+    echo "  -v, --version                Print the version of runner used"
     echo "  -h, --help                   Print this message and exit."
     exit 0
 }
@@ -44,6 +45,13 @@ runner_cli_list_tasks() {
     trap - EXIT
     runner_get_defined_tasks
     exit 0
+}
+
+## Outputs the current version number
+runner_cli_version(){
+  trap - EXIT
+  cat "${runner_src_dir}/../VERSION"
+  exit 0
 }
 
 ## Outputs code to activate task completions
@@ -72,6 +80,10 @@ runner_cli_parse_args() {
         ## List tasks
         if [[ ${1} == '-l' || ${1} == '--list-tasks' ]]; then
             runner_list_tasks="true"
+        fi
+        ## Print the version
+        if [[ ${1} == '-v' || ${1} == '--version' ]]; then
+            runner_cli_version
         fi
         ## Return the completions code
         if [[ ${1} == '--completion='* ]]; then
