@@ -129,6 +129,13 @@ ergonomic by altering your PATH:
 ```bash
 export PATH="$PATH:./runner/bin"
 ```
+To avoid modifying your path, you can add `runner` as a git alias:
+```bash
+git config alias.runner = '!f(){ bash ./runner/bin/runner $@; }; f'
+# runner can now be called as
+git runner
+```
+Note this will prevent the runner from recognizing `--help`, but will still allow using `-h` to print the usage documentation.
 
 Then skip to [CLI](#cli) to learn how to use the CLI.
 
@@ -187,7 +194,7 @@ Options:
                                Supported shells: 'bash'.
   -f <file>, --file=<file>     Use <file> as a runnerfile.
   -l, --list-tasks             List available tasks.
-  -v, --version                Print the version of runner used 
+  -v, --version                Print the version of runner used
   -h, --help                   Print this message and exit.
 ```
 
