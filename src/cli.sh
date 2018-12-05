@@ -135,12 +135,12 @@ fi
 
 ## Try to find a runnerfile
 if [[ -n ${runner_file} ]]; then
-    if [[ ! -f ${runner_file} ]]; then
+    if [[ ! -f ${runner_file} && ! -p ${runner_file} ]]; then
         runner_cli_error "'${runner_file}' is not a file!"
     fi
 else
     for file in "${runner_file_default_names[@]}"; do
-        if [[ -f ${file} ]]; then
+        if [[ -f ${file} || -p ${file} ]]; then
             runner_file="${file}"
             break
         fi
