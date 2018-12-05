@@ -9,16 +9,16 @@ alias runner_realpath="readlink -f"
 ## Fallbacks for GNU readlink
 ## Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
 if ! readlink --version >/dev/null 2>&1; then
-    if hash greadlink 2>/dev/null; then
-        alias runner_realpath="greadlink -f"
-    else
-        alias runner_realpath="perl -MCwd -le 'print Cwd::abs_path(shift)'"
-    fi
+  if hash greadlink 2>/dev/null; then
+    alias runner_realpath="greadlink -f"
+  else
+    alias runner_realpath="perl -MCwd -le 'print Cwd::abs_path(shift)'"
+  fi
 fi
 
 if [[ "${FUNCNAME[0]}" == source ]]; then
-    echo "Can't source the 'runner' executable. Instead, source 'src/runner.sh' directly."
-    exit 1
+  echo "Can't source the 'runner' executable. Instead, source 'src/runner.sh' directly."
+  exit 1
 fi
 
 ## Resolve the absolute path to the source folder
