@@ -1,6 +1,6 @@
 {
   "name": "bash-task-runner",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Simple, lightweight task runner for Bash.",
   "bin": {
     "runner": "bin/runner"

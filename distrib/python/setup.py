@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="bash-task-runner",
-    version="0.8.0",
+    version="0.9.0",
     author="stylemistake",
     author_email="stylemistake@gmail.com",
     url="https://github.com/stylemistake/runner",

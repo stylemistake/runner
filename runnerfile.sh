@@ -8,7 +8,7 @@ task_default() {
 }
 
 task_shellcheck() {
-    runner_run shellcheck --exclude=SC2155,SC2016 "${source_files[@]}"
+    runner_run shellcheck --exclude=SC2016,SC2155,SC2164 "${source_files[@]}"
 }
 
 task_test() {
@@ -60,7 +60,7 @@ task_publish-npm() {
     runner_sequence clean
     rsync -a --relative "${publish_files[@]}" distrib/npm
     enter-dir distrib/npm
-    npm publish
+    npm publish || return "${?}"
     leave-dir
 }
 
