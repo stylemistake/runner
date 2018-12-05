@@ -135,7 +135,12 @@ fi
 
 ## Try to find a runnerfile
 if [[ -n ${runner_file} ]]; then
-    if [[ ! -f ${runner_file} && ! -p ${runner_file} ]]; then
+    ## Use stdin
+    if [[ ${runner_file} == '-' ]]; then
+        runner_file="/dev/stdin"
+    elif [[ -f ${runner_file} || -p ${runner_file} ]]; then
+        true ## Do nothing
+    else
         runner_cli_error "'${runner_file}' is not a file!"
     fi
 else
