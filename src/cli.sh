@@ -48,10 +48,10 @@ runner_cli_list_tasks() {
 }
 
 ## Outputs the current version number
-runner_cli_version(){
-  trap - EXIT
-  cat "${runner_src_dir}/../VERSION"
-  exit 0
+runner_cli_version() {
+    trap - EXIT
+    cat "${runner_src_dir}/../VERSION"
+    exit 0
 }
 
 ## Outputs code to activate task completions
@@ -156,6 +156,6 @@ fi
 # shellcheck source=/dev/null
 source "${runner_file}"
 
-if [ -n "${runner_list_tasks}" ]; then
+if [[ -n "${runner_list_tasks}" ]]; then
     runner_cli_list_tasks
 fi

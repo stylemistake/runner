@@ -1,17 +1,19 @@
 # .gitignore
 
-## ------------------------------------
-##  Project build rubbish
+##  Build artifacts
 ## ------------------------------------
 
-/node_modules
-/deps
 /.tmp
-/*.tgz
-/npm-debug.log
 
 
+##  Distrib
 ## ------------------------------------
+
+/distrib/*/*
+!/distrib/npm/package.json
+!/distrib/python/setup.py
+
+
 ##  Normally ignored rubbish
 ## ------------------------------------
 
