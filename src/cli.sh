@@ -19,14 +19,14 @@ declare runner_directory
 declare runner_list_tasks
 
 ## Outputs an error message and exits the script
-runner_cli_error() {
+runner-cli-error() {
   trap - EXIT
-  runner_log_error "${@}"
+  runner-log-error "${@}"
   exit 2
 }
 
 ## Outputs a nice help message
-runner_cli_help() {
+runner-cli-help() {
   trap - EXIT
   echo "Usage: ${0} [options] [task] [task_options] ..."
   echo "Options:"
@@ -41,21 +41,21 @@ runner_cli_help() {
 }
 
 ## Outputs a list of tasks
-runner_cli_list_tasks() {
+runner-cli-list-tasks() {
   trap - EXIT
-  runner_get_defined_tasks
+  runner-get-tasks --no-prefix
   exit 0
 }
 
 ## Outputs the current version number
-runner_cli_version() {
+runner-cli-version() {
   trap - EXIT
   cat "${runner_src_dir}/../VERSION"
   exit 0
 }
 
 ## Outputs code to activate task completions
-runner_cli_get_completions_code() {
+runner-cli-get-completions-code() {
   trap - EXIT
   local shell="${1:-bash}"
   echo "source ${runner_src_dir}/../completion/runner.${shell}"
@@ -64,7 +64,7 @@ runner_cli_get_completions_code() {
 
 ## Parses CLI-specific flags.
 ## Must take "${runner_args[@]}" as the argument.
-runner_cli_parse_args() {
+runner-cli-parse-args() {
   ## Clean up currently defined arguments
   runner_args=()
   ## Iterate over the provided arguments
@@ -75,7 +75,7 @@ runner_cli_parse_args() {
     fi
     ## Help message
     if [[ ${1} == '-h' || ${1} == '--help' ]]; then
-      runner_cli_help
+      runner-cli-help
     fi
     ## List tasks
     if [[ ${1} == '-l' || ${1} == '--list-tasks' ]]; then
@@ -83,15 +83,15 @@ runner_cli_parse_args() {
     fi
     ## Print the version
     if [[ ${1} == '-v' || ${1} == '--version' ]]; then
-      runner_cli_version
+      runner-cli-version
     fi
     ## Return the completions code
     if [[ ${1} == '--completion='* ]]; then
-      runner_cli_get_completions_code "${1#*=}"
+      runner-cli-get-completions-code "${1#*=}"
     fi
     ## Runnerfile override
     if [[ ${1} == '-f' ]]; then
-      [[ -z ${2} ]] && runner_cli_error "Missing an argument after ${1}"
+      [[ -z ${2} ]] && runner-cli-error "Missing an argument after ${1}"
       runner_file="${2}"
       shift 2
       continue
@@ -103,7 +103,7 @@ runner_cli_parse_args() {
     fi
     ## Current directory override
     if [[ ${1} == '-C' ]]; then
-      [[ -z ${2} ]] && runner_cli_error "Missing an argument after ${1}"
+      [[ -z ${2} ]] && runner-cli-error "Missing an argument after ${1}"
       runner_directory="${2}"
       shift 2
       continue
@@ -123,14 +123,14 @@ runner_cli_parse_args() {
 }
 
 ## Parse the actual arguments
-runner_cli_parse_args "${runner_args[@]}"
+runner-cli-parse-args "${runner_args[@]}"
 
 ## Try to change the current directory
 if [[ -n ${runner_directory} ]]; then
   if [[ ! -d ${runner_directory} ]]; then
-    runner_cli_error "'${runner_directory}' is not a directory!"
+    runner-cli-error "'${runner_directory}' is not a directory!"
   fi
-  cd "${runner_directory}" || runner_cli_error "Could not change directory!"
+  cd "${runner_directory}" || runner-cli-error "Could not change directory!"
 fi
 
 ## Try to find a runnerfile
@@ -141,7 +141,7 @@ if [[ -n ${runner_file} ]]; then
   elif [[ -f ${runner_file} || -p ${runner_file} ]]; then
     true ## Do nothing
   else
-    runner_cli_error "'${runner_file}' is not a file!"
+    runner-cli-error "'${runner_file}' is not a file!"
   fi
 else
   for file in "${runner_file_default_names[@]}"; do
@@ -154,7 +154,7 @@ fi
 
 ## Runnerfile not found
 if [[ -z ${runner_file} ]]; then
-  runner_cli_error 'No runnerfile found.'
+  runner-cli-error 'No runnerfile found.'
 fi
 
 ## Source the runnerfile
@@ -162,5 +162,5 @@ fi
 source "${runner_file}"
 
 if [[ -n "${runner_list_tasks}" ]]; then
-  runner_cli_list_tasks
+  runner-cli-list-tasks
 fi

@@ -215,7 +215,7 @@ All flags you pass after the task name are passed to your tasks.
 $ runner foo --production
 
 task_foo() {
-    echo ${@} # --production
+  echo ${@} # --production
 }
 ```
 
@@ -233,12 +233,12 @@ Runner works in conjunction with a `runnerfile.sh`. A basic Runnerfile looks
 like this:
 
 ```bash
-task_foo() {
-    ## Do something...
+task-foo() {
+  ## Do something...
 }
 
-task_bar() {
-    ## Do something...
+task-bar() {
+  ## Do something...
 }
 ```
 
@@ -275,19 +275,32 @@ with editor syntax highlighting.
 
 ### Default task
 
-You can specify a default task in your Runnerfile. It will run when no arguments
-are provided. There are two ways to do this:
+You can specify the default task in your Runnerfile. It will run when no
+arguments are provided. There are two ways to do this:
 
 ```bash
-task_default() {
-    # do something ...
+task-default() {
+  # do something ...
 }
 ```
 
 ```bash
-runner_default_task="foo"
-task_foo() {
-    # do something ...
+runner_default_task="task-foo"
+task-foo() {
+  # do something ...
+}
+```
+
+### Task prefix
+
+Runner treats all functions beginning with the specified prefix as tasks.
+
+You can change the default task prefix, to suit your code style:
+
+```bash
+runner_task_prefix="task::"
+task::make-coffee() {
+  # do something ...
 }
 ```
 
@@ -299,24 +312,24 @@ This way you can optimize the task flow for maximum concurrency.
 To run tasks sequentially, use:
 
 ```bash
-task_default() {
-    runner_sequence foo bar
-    ## [23:50:33.194] Starting 'foo'
-    ## [23:50:33.195] Finished 'foo' after 1 ms
-    ## [23:50:33.196] Starting 'bar'
-    ## [23:50:33.198] Finished 'bar' after 2 ms
+task-default() {
+  runner_sequence foo bar
+  ## [23:50:33.194] Starting 'foo'
+  ## [23:50:33.195] Finished 'foo' after 1 ms
+  ## [23:50:33.196] Starting 'bar'
+  ## [23:50:33.198] Finished 'bar' after 2 ms
 }
 ```
 
 To run tasks in parallel, use:
 
 ```bash
-task_default() {
-    runner_parallel foo bar
-    ## [23:50:33.194] Starting 'foo'
-    ## [23:50:33.194] Starting 'bar'
-    ## [23:50:33.196] Finished 'foo' after 2 ms
-    ## [23:50:33.196] Finished 'bar' after 2 ms
+task-default() {
+  runner_parallel foo bar
+  ## [23:50:33.194] Starting 'foo'
+  ## [23:50:33.194] Starting 'bar'
+  ## [23:50:33.196] Finished 'foo' after 2 ms
+  ## [23:50:33.196] Finished 'bar' after 2 ms
 }
 ```
 
@@ -327,9 +340,9 @@ You can achieve this with a conditional return:
 
 ```bash
 task_foo() {
-    ...
-    php composer.phar install || return
-    ...
+  ...
+  php composer.phar install || return
+  ...
 }
 ```
 
@@ -341,11 +354,11 @@ no further code is executed afterwards and the overall return code is
 correctly set:
 
 ```bash
-task_default() {
-    ...
-    runner_sequence foo bar || return
-    ...
-    echo "Won't show up on error above"
+task-default() {
+  ...
+  runner_sequence foo bar || return
+  ...
+  echo "Won't show up on error above"
 }
 ```
 
@@ -387,13 +400,13 @@ Colorizes the message with the specified color. Here's a list of colors:
 `runner_run` command gives a way to run commands and have them outputted:
 
 ```bash
-task_default() {
-    runner_run composer install
-    ## [12:19:17.170] Starting 'default'...
-    ## [12:19:17.173] composer install
-    ## Loading composer repositories with package information
-    ## ...
-    ## [12:19:17.932] Finished 'default' after 758 ms
+task-default() {
+  runner_run composer install
+  ## [12:19:17.170] Starting 'default'...
+  ## [12:19:17.173] composer install
+  ## Loading composer repositories with package information
+  ## ...
+  ## [12:19:17.932] Finished 'default' after 758 ms
 }
 ```
 
@@ -435,16 +448,16 @@ By using `runner_bootstrap`, you can manually choose a point where it begins
 to run tasks:
 
 ```bash
-task_default() {
-    ## Do things...
+task-default() {
+  ## Do things...
 }
 
 runner_bootstrap ## <-- runs tasks here
 
 if [[ ${?} -eq 0 ]]; then
-    echo "Success! :)"
+  echo "Success! :)"
 else
-    echo "Failure! :("
+  echo "Failure! :("
 fi
 ```
 

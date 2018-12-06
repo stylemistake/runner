@@ -1,22 +1,22 @@
 ## Sample runnerfile
 
-task_one() {
-  runner_parallel end
+task-default() {
+  @run-tasks -p task-one task-two task-three task-end
 }
 
-task_two() {
-  runner_parallel one end
+task-one() {
+  @run-tasks -p task-end
 }
 
-task_three() {
-  runner_parallel one two end
+task-two() {
+  @run-tasks -p task-one task-end
 }
 
-task_end() {
+task-three() {
+  @run-tasks -p task-one task-two task-end
+}
+
+task-end() {
   # do nothing
   echo -n
-}
-
-task_default() {
-  runner_parallel one two three end
 }

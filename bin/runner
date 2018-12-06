@@ -4,15 +4,15 @@
 shopt -s expand_aliases
 
 ## Returns an absolute path to file
-alias runner_realpath="readlink -f"
+alias runner-realpath="readlink -f"
 
 ## Fallbacks for GNU readlink
 ## Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
 if ! readlink --version >/dev/null 2>&1; then
   if hash greadlink 2>/dev/null; then
-    alias runner_realpath="greadlink -f"
+    alias runner-realpath="greadlink -f"
   else
-    alias runner_realpath="perl -MCwd -le 'print Cwd::abs_path(shift)'"
+    alias runner-realpath="perl -MCwd -le 'print Cwd::abs_path(shift)'"
   fi
 fi
 
@@ -22,10 +22,10 @@ if [[ "${FUNCNAME[0]}" == source ]]; then
 fi
 
 ## Resolve the absolute path to the source folder
-runner_src_dir="$(dirname "$(runner_realpath "${0}")")/../src"
+runner_src_dir="$(dirname "$(runner-realpath "${0}")")/../src"
 
 ## Resolve resolved path to remove the '../' part
-runner_src_dir="$(runner_realpath "${runner_src_dir}")"
+runner_src_dir="$(runner-realpath "${runner_src_dir}")"
 
 ## Include core files
 # shellcheck source=src/runner.sh
