@@ -33,4 +33,4 @@ source "${runner_src_dir}/runner.sh"
 
 ## Include CLI specific files
 # shellcheck source=src/cli.sh
-source "${runner_src_dir}/cli.sh"
+source "${runner_src_dir}/runner-cli.sh"

@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
+set -e
 
 source_files=(bin/runner src/*.sh runnerfile.sh)
 publish_files=(bin completion src LICENSE.md README.md VERSION)
 
 task-default() {
-  @run-tasks -p task-{shellcheck,test}
+  runner-run-tasks test
 }
 
 task-shellcheck() {
-  @run-command shellcheck --exclude=SC2016,SC2155,SC2164 "${source_files[@]}"
+  shellcheck --exclude=SC2016,SC2155,SC2164 "${source_files[@]}"
 }
 
 task-test() {
-  bash test/test.sh >/dev/null
+  logger-exec bash3 test/test.sh
+  logger-exec bash3 test/runner-basic-parallelism.sh
 }
 
 task-readme() {
@@ -49,7 +51,7 @@ task-update-version() {
   if runner_is_defined npm; then
     @log "Updating package.json"
     @enter-dir distrib/npm
-    @run-command npm version "${next_tag}"
+    runner-run-command npm version "${next_tag}"
     @leave-dir
   else
     @log-warning "Missing 'npm', skipping..."
@@ -57,9 +59,9 @@ task-update-version() {
 }
 
 task-publish-npm() {
-  @run-tasks task-clean
+  runner-run-tasks task-clean
   rsync -a --relative "${publish_files[@]}" distrib/npm
-  @enter-dir distrib/npm
+  dir-enter distrib/npm
   npm publish || return "${?}"
-  @leave-dir
+  dir-leave
 }

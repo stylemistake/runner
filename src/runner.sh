@@ -1,168 +1,44 @@
-#!/usr/bin/env bash
+# runner.sh
+
+if [[ -z ${runner_src_dir} ]]; then
+  runner_src_dir="$(dirname "${BASH_SOURCE[0]}")"
+fi
+
+## Include core dependencies
+source "${runner_src_dir}/argparse.sh"
+source "${runner_src_dir}/colorize.sh"
+source "${runner_src_dir}/dir.sh"
+source "${runner_src_dir}/list.sh"
+source "${runner_src_dir}/logger.sh"
+source "${runner_src_dir}/misc.sh"
+source "${runner_src_dir}/time.sh"
 
 ## Default task
-declare runner_default_task="task-default"
+runner_default_task="default"
 
 ## Task prefix
-declare runner_task_prefix="task-"
-
-## Trap EXIT signal to bootstrap the runner.
-## Works like a charm - your script ends, tasks start to run.
-## Trap resets after bootstrapping.
-trap '[[ ${?} -eq 0 ]] && runner-bootstrap' EXIT
-
-## Expand aliases
-shopt -s expand_aliases
+runner_task_prefix="task-"
 
 ## Determine the initial passed arguments to the root script
-declare -a runner_args=("${@}")
+runner_args=("${@}")
 
 ## Split arguments into tasks and flags.
 ## All flags are then passed on to tasks.
 ## E.g. --production
 ## NOTE: The actual splitting is done in runner-bootstrap.
-declare -a runner_flags
-declare -a runner_tasks
+runner_flags=()
+runner_tasks=()
 
-
-##  Shorthand aliases
-## --------------------------------------------------------
-
-alias @bootstrap="runner-bootstrap"
-alias @colorize="runner-colorize"
-alias @get-tasks="runner-get-tasks"
-alias @is-command="runner-is-command"
-alias @is-task="runner-is-task"
-alias @log-error="runner-log-error"
-alias @log-notice="runner-log-notice"
-alias @log-success="runner-log-success"
-alias @log-warning="runner-log-warning"
-alias @log="runner-log"
-alias @run-command="runner-run-command"
-alias @run-tasks="runner-run-tasks"
-alias @enter-dir="runner-enter-dir"
-alias @leave-dir="runner-leave-dir"
-
-
-##  Logging functions
-## --------------------------------------------------------
-
-## Logs a message with a timestamp
-runner-log() {
-  local timestamp="$(runner-date +%T.%3N)"
-  echo "[$(runner-colorize grey "${timestamp}")] ${*}"
-}
-
-## Variations of log with colors
-runner-log-error() {
-  runner-log "$(runner-colorize red "${@}")"
-}
-
-runner-log-warning() {
-  runner-log "$(runner-colorize light-yellow "${@}")"
-}
-
-runner-log-success() {
-  runner-log "$(runner-colorize green "${@}")"
-}
-
-runner-log-notice() {
-  runner-log "$(runner-colorize grey "${@}")"
-}
+## Store completed tasks
+runner_tasks_completed=()
 
 
 ##  Utility functions
 ## --------------------------------------------------------
 
-## Checks if program is accessible from current $PATH
-runner-is-command() {
-  hash "${@}" 2>/dev/null
+runner-log() {
+  logger-log "${@}"
 }
-
-## Checks if word is in the list.
-## Usage: runner-contains <predicate> [<word> ...]
-runner-contains() {
-  local item
-  local predicate="${1}"
-  shift
-  for item; do
-    [[ "${item}" == "${predicate}" ]] && return 0
-  done
-  return 1
-}
-
-## Alias for coreutils date
-alias runner-date="date"
-
-## Returns unix time in ms
-alias runner-time="runner-date +%s%3N"
-
-## Returns a human readable duration in ms
-runner-pretty-ms() {
-  local -i ms="${1}"
-  local result
-  ## If zero or nothing
-  if [[ -z ${ms} || ${ms} -lt 1 ]]; then
-    echo "0 ms"
-    return
-  ## Only ms
-  elif [[ ${ms} -lt 1000 ]]; then
-    echo "${ms} ms"
-    return
-  ## Only seconds with trimmed ms point
-  elif [[ ${ms} -lt 60000 ]]; then
-    result=$((ms / 1000 % 60)).$((ms % 1000))
-    echo "${result:0:4} s"
-    return
-  fi
-  local -i parsed
-  ## Days
-  parsed=$((ms / 86400000))
-  [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} d"
-  ## Hours
-  parsed=$((ms / 3600000 % 24))
-  [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} h"
-  ## Minutes
-  parsed=$((ms / 60000 % 60))
-  [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} m"
-  ## Seconds
-  parsed=$((ms / 1000 % 60))
-  [[ ${parsed} -gt 0 ]] && result="${result} ${parsed} s"
-  ## Output result
-  echo "${result}"
-}
-
-## Color definitions and colorize function
-## NOTE: Associative arrays only work on Bash 4
-if ((BASH_VERSINFO[0] >= 4)); then
-  declare -A runner_colors=(
-    [black]="$(echo -e '\e[30m')"
-    [red]="$(echo -e '\e[31m')"
-    [green]="$(echo -e '\e[32m')"
-    [yellow]="$(echo -e '\e[33m')"
-    [blue]="$(echo -e '\e[34m')"
-    [purple]="$(echo -e '\e[35m')"
-    [cyan]="$(echo -e '\e[36m')"
-    [light-grey]="$(echo -e '\e[37m')"
-    [grey]="$(echo -e '\e[90m')"
-    [light-red]="$(echo -e '\e[91m')"
-    [light-green]="$(echo -e '\e[92m')"
-    [light-yellow]="$(echo -e '\e[93m')"
-    [light-blue]="$(echo -e '\e[94m')"
-    [light-purple]="$(echo -e '\e[95m')"
-    [light-cyan]="$(echo -e '\e[96m')"
-    [white]="$(echo -e '\e[97m')"
-    [reset]="$(echo -e '\e[0m')"
-  )
-
-  runner-colorize() {
-    echo "${runner_colors[$1]}${*:2}${runner_colors[reset]}"
-  }
-else
-  runner-colorize() {
-    echo "${*:2}"
-  }
-fi
 
 
 ##  Task runner functions
@@ -174,119 +50,135 @@ runner-get-tasks() {
   local IFS=$'\n'
   local prefix_part="declare -f "
   local prefix_full="declare -f ${runner_task_prefix}"
+  local tasks=()
   for task in $(typeset -F); do
     if [[ ${task} == "${prefix_full}"* ]]; then
-      if [[ ${1} == '--no-prefix' ]]; then
-        echo "${task#$prefix_full}"
+      if [[ ${1} == '--with-prefix' ]]; then
+        tasks+=("${task#$prefix_part}")
       else
-        echo "${task#$prefix_part}"
+        tasks+=("${task#$prefix_full}")
       fi
     fi
   done
+  echo "${tasks[@]}"
 }
 
 ## Get a human readable list of all tasks
 ## This one is meant to be used in CLI.
 runner-show-tasks() {
-  runner-log "Available tasks:"
+  echo "Available tasks: $(runner-get-tasks)"
   local -a tasks
   ## Shellcheck pattern SC2207 to read an array
-  IFS=" " read -r -a tasks <<< "$(runner-get-tasks --no-prefix)"
+  IFS=" " read -r -a tasks <<< "$(runner-get-tasks)"
   if [[ ${#tasks[@]} -eq 0 ]]; then
-    runner-log "  $(runner-colorize light-grey \<none\>)"
+    echo "  $(colorize -c light-grey \<none\>)"
     return
   fi
   for task in "${tasks[@]}"; do
-    runner-log "  $(runner-colorize cyan "${task#$runner_task_prefix}")"
+    echo "  $(colorize -c cyan "${task}")"
   done
 }
 
 runner-is-task() {
+  local task
+  local verbose
+  if list-includes "${1}" -v --verbose; then
+    verbose=1
+    shift 1
+  fi
   for task in "${@}"; do
-    if ! runner-is-command "${task}"; then
-      return 1
-    fi
-    if [[ ${task} != "${runner_task_prefix}"* ]]; then
+    if ! hash "${runner_task_prefix}${task}" 2>/dev/null; then
+      if [[ -n ${verbose} ]]; then
+        runner-log -e "Task '${task}' is not defined!"
+      fi
       return 1
     fi
   done
 }
 
-runner-is-task-verbose() {
-  for task in "${@}"; do
-    if ! runner-is-command "${task}"; then
-      runner-log-error "Task '${task}' is not defined!"
-      return 1
-    fi
-  done
-}
 
 ## Runs a single task
 ## Usage: runner-run-task <task> [<argument> ...]
 runner-run-task() {
-  local task_name="${1#$runner_task_prefix}"
-  if runner-is-task "${1}"; then
-    local task_color="$(runner-colorize cyan "${task_name}")"
-  else
-    local task_color="$(runner-colorize yellow "${task_name}")"
-  fi
-  runner-log "Starting '${task_color}'..."
-  local -i time_start="$(runner-time)"
-  "${1}" "${@:2}" "${runner_flags[@]}"
+  local task="${1}"
+  local task_args=("${@:2}")
+  local task_str
+  task_str="$(colorize -c cyan "'${task}'")"
+  runner-log -a "Starting ${task_str}"
+  ## Save time for calculating diff
+  local -i time_start
+  time_start="$(time-unix-ms)"
+  ## Save bash option state
+  ## See: https://superuser.com/a/946451/478493
+  local bash_opt_state="$(set +o)"
+  ## Run task in a controlled subshell
+  set +e
+  (
+    set -e
+    "${runner_task_prefix}${task}" "${task_args[@]}"
+  )
+  ## Save exit code
   local exit_code=${?}
-  local -i time_end="$(runner-time)"
-  local time_diff="$(runner-pretty-ms $((time_end - time_start)))"
+  ## Restore bash option state
+  eval "${bash_opt_state}"
+  ## Calculate time diff
+  local -i time_end
+  time_end="$(time-unix-ms)"
+  local time_diff
+  time_diff="$(time-pretty-ms $((time_end - time_start)))"
+  time_diff="$(colorize -c purple "${time_diff}")"
+  ## Report error
   if [[ ${exit_code} -ne 0 ]]; then
-    runner-log-error "Task '${task_name}'" \
-      "failed after ${time_diff} (${exit_code})"
+    runner-log -e "Task ${task_str} failed after ${time_diff} (${exit_code})"
     return ${exit_code}
   fi
-  runner-log "Finished '${task_color}'" \
-    "after $(runner-colorize purple "${time_diff}")"
+  ## Report success
+  runner-log -a "Finished ${task_str} after ${time_diff}"
 }
 
-## Runs tasks.
+runner_tasks_running=()
+runner_tasks_running_pid=()
+
+runner-spawn-task() {
+  local task="${1}"
+  runner_tasks_running+=("${task}")
+
+}
+
+## Runs multiple tasks
 ## Usage: runner-run-tasks [-p] [<task> ...]
 runner-run-tasks() {
   if [[ ${1} == "-p" || ${1} == "--parallel" ]]; then
     runner-run-tasks-parallel "${@:2}"
     return ${?}
   fi
-  runner-is-task-verbose "${@}" || return 1
+  if ! runner-is-task -v "${@}"; then
+    return 1
+  fi
   for task in "${@}"; do
     runner-run-task "${task}" || return ${?}
   done
 }
 
-## Run tasks in parallel.
-## Usage: runner-run-tasks-parallel [<task> ...]
-runner-run-tasks-parallel() {
-  runner-is-task-verbose "${@}" || return 1
-  local -a pid
-  local -i exits=0
-  for task in "${@}"; do
-    runner-run-task "${task}" & pid+=(${!})
-  done
-  for pid in "${pid[@]}"; do
-    wait "${pid}" || exits+=1
-  done
-  [[ ${exits} -eq 0 ]] && return 0
-  [[ ${exits} -eq 1 ]] && return 1
-  [[ ${exits} -lt ${#} ]] && return 2
-  return 3
-}
-
-## Outputs command before execution
-## Usage: runner-run-command <command> [<argument> ...]
-runner-run-command() {
-  runner-log-notice "${@}"
-  "${@}"
-}
+# ## Run tasks in parallel.
+# ## Usage: runner-run-tasks-parallel [<task> ...]
+# runner-run-tasks-parallel() {
+#   local -a pid
+#   local -i exits=0
+#   for task in "${@}"; do
+#     runner-run-task "${task}" & pid+=(${!})
+#   done
+#   for pid in "${pid[@]}"; do
+#     wait "${pid}" || exits+=1
+#   done
+#   [[ ${exits} -eq 0 ]] && return 0
+#   [[ ${exits} -eq 1 ]] && return 1
+#   [[ ${exits} -lt ${#} ]] && return 2
+#   return 3
+# }
 
 ## Starts the initial task.
 runner-bootstrap() {
-  ## Clear a trap we set up earlier
-  trap - EXIT
   ## Parse arguments
   for arg in "${runner_args[@]}"; do
     if [[ ${arg} == -* ]]; then
@@ -308,22 +200,6 @@ runner-bootstrap() {
   runner-show-tasks
 }
 
-## Fallbacks for GNU date
-## Detecting GNU coreutils http://stackoverflow.com/a/8748344/319952
-if ! date --version >/dev/null 2>&1; then
-  if hash gdate 2>/dev/null; then
-    alias runner-date="gdate"
-  else
-    ## Don't use nanoseconds feature of GNU date
-    alias runner-time="runner-date +%s000"
-    ## Don't print milliseconds in log messages
-    runner-log() {
-      local timestamp="$(runner-date +%T)"
-      echo "[$(runner-colorize grey "${timestamp}")] ${*}"
-    }
-  fi
-fi
-
 
 ##  Directory traversal functions
 ## --------------------------------------------------------
@@ -333,50 +209,13 @@ runner_dir_stack=()
 runner-enter-dir() {
   local path="${1}"
   runner_dir_stack+=("${path}")
-  runner-log "Entering '$(runner-colorize light-grey "${path}")'"
+  runner-log "Entering '$(colorize light-grey "${path}")'"
   pushd "${path}" >/dev/null
 }
 
 runner-leave-dir() {
   local path="${runner_dir_stack[-1]}"
   unset 'runner_dir_stack[-1]'
-  runner-log "Leaving '$(runner-colorize light-grey "${path}")'"
+  runner-log "Leaving '$(colorize light-grey "${path}")'"
   popd >/dev/null
 }
-
-
-
-##  Compatibility with runner v0.x.x
-## --------------------------------------------------------
-
-# declare -a runner_deprecations_shown=()
-
-# runner-deprecation-warning() {
-#   runner-log-error ""
-#   "${@}"
-# }
-
-alias runner_bootstrap="runner-bootstrap"
-alias runner_colorize="runner-colorize"
-alias runner_get_defined_tasks="runner-get-tasks"
-alias runner_is_defined="runner-is-command"
-
-runner_is_task_defined() {
-  runner-is-task "${runner_task_prefix}${1}"
-}
-
-runner_is_task_defined_verbose() {
-  runner-is-task-verbose "${runner_task_prefix}${1}"
-}
-
-alias runner_log="runner-log"
-alias runner_log_error="runner-log-error"
-alias runner_log_notice="runner-log-notice"
-alias runner_log_success="runner-log-success"
-alias runner_log_warning="runner-log-warning"
-alias runner_parallel="runner-run-tasks-parallel"
-alias runner_pretty_ms="runner-pretty-ms"
-alias runner_run="runner-run-command"
-alias runner_run_task="runner-run-task"
-alias runner_sequence="runner-run-tasks"
-alias runner_show_defined_tasks="runner-show-tasks"

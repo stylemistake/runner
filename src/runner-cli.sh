@@ -21,7 +21,7 @@ declare runner_list_tasks
 ## Outputs an error message and exits the script
 runner-cli-error() {
   trap - EXIT
-  runner-log-error "${@}"
+  logger-log -e "${@}"
   exit 2
 }
 
@@ -43,7 +43,7 @@ runner-cli-help() {
 ## Outputs a list of tasks
 runner-cli-list-tasks() {
   trap - EXIT
-  runner-get-tasks --no-prefix
+  runner-get-tasks
   exit 0
 }
 
@@ -91,7 +91,9 @@ runner-cli-parse-args() {
     fi
     ## Runnerfile override
     if [[ ${1} == '-f' ]]; then
-      [[ -z ${2} ]] && runner-cli-error "Missing an argument after ${1}"
+      if [[ -z ${2} ]]; then
+        runner-cli-error "Missing an argument after ${1}"
+      fi
       runner_file="${2}"
       shift 2
       continue
@@ -103,7 +105,9 @@ runner-cli-parse-args() {
     fi
     ## Current directory override
     if [[ ${1} == '-C' ]]; then
-      [[ -z ${2} ]] && runner-cli-error "Missing an argument after ${1}"
+      if [[ -z ${2} ]]; then
+        runner-cli-error "Missing an argument after ${1}"
+      fi
       runner_directory="${2}"
       shift 2
       continue
@@ -164,3 +168,5 @@ source "${runner_file}"
 if [[ -n "${runner_list_tasks}" ]]; then
   runner-cli-list-tasks
 fi
+
+runner-bootstrap
