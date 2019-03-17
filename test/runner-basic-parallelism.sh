@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 cd "$(dirname ${0})/.."
-set -e
+# set -e
 
 source src/runner.sh
 
 task-default() {
-  runner-depends-on foo1 foo2
+  runner-depends-on foo-1 foo-2
 }
 
-task-foo1() {
-  runner-depends-on foo2
+task-foo-1() {
+  runner-depends-on foo-2
 }
 
-task-foo2() {
-  runner-depends-on foo3
+task-foo-2() {
+  runner-depends-on foo-3
 }
 
-task-foo3() {
+task-foo-3() {
   :
 }
 
-runner-bootstrap
+runner_tasks=(default)
+runner-master-start

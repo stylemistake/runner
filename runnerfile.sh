@@ -5,7 +5,7 @@ source_files=(bin/runner src/*.sh runnerfile.sh)
 publish_files=(bin completion src LICENSE.md README.md VERSION)
 
 task-default() {
-  runner-run-tasks test
+  runner-run-task test
 }
 
 task-shellcheck() {
@@ -13,8 +13,7 @@ task-shellcheck() {
 }
 
 task-test() {
-  logger-exec bash3 test/test.sh
-  logger-exec bash3 test/runner-basic-parallelism.sh
+  logger-exec bash3 test/unit.sh
 }
 
 task-readme() {

@@ -1,5 +1,6 @@
 # runner.sh
 
+## Resolve source directory
 if [[ -z ${runner_src_dir} ]]; then
   runner_src_dir="$(dirname "${BASH_SOURCE[0]}")"
 fi
@@ -12,6 +13,8 @@ source "${runner_src_dir}/list.sh"
 source "${runner_src_dir}/logger.sh"
 source "${runner_src_dir}/misc.sh"
 source "${runner_src_dir}/time.sh"
+source "${runner_src_dir}/runner-master.sh"
+source "${runner_src_dir}/runner-slave.sh"
 
 ## Default task
 runner_default_task="default"
@@ -136,29 +139,20 @@ runner-run-task() {
   runner-log -a "Finished ${task_str} after ${time_diff}"
 }
 
-runner_tasks_running=()
-runner_tasks_running_pid=()
-
-runner-spawn-task() {
-  local task="${1}"
-  runner_tasks_running+=("${task}")
-
-}
-
-## Runs multiple tasks
-## Usage: runner-run-tasks [-p] [<task> ...]
-runner-run-tasks() {
-  if [[ ${1} == "-p" || ${1} == "--parallel" ]]; then
-    runner-run-tasks-parallel "${@:2}"
-    return ${?}
-  fi
-  if ! runner-is-task -v "${@}"; then
-    return 1
-  fi
-  for task in "${@}"; do
-    runner-run-task "${task}" || return ${?}
-  done
-}
+# ## Runs multiple tasks
+# ## Usage: runner-run-tasks [-p] [<task> ...]
+# runner-run-tasks() {
+#   if [[ ${1} == "-p" || ${1} == "--parallel" ]]; then
+#     runner-run-tasks-parallel "${@:2}"
+#     return ${?}
+#   fi
+#   if ! runner-is-task -v "${@}"; then
+#     return 1
+#   fi
+#   for task in "${@}"; do
+#     runner-run-task "${task}" || return ${?}
+#   done
+# }
 
 # ## Run tasks in parallel.
 # ## Usage: runner-run-tasks-parallel [<task> ...]
@@ -187,13 +181,17 @@ runner-bootstrap() {
       runner_tasks+=("${arg}")
     fi
   done
+  ## Add default task if no tasks are provided
+  if [[ ${#runner_tasks[@]} -eq 0 ]] \
+      && runner-is-task "${runner_default_task}"; then
+    runner_tasks+=("${runner_default_task}")
+  fi
   ## Run tasks
   if [[ ${#runner_tasks[@]} -gt 0 ]]; then
-    runner-run-tasks "${runner_tasks[@]}" || exit ${?}
-    return 0
-  fi
-  if runner-is-task "${runner_default_task}"; then
-    runner-run-task "${runner_default_task}" || exit ${?}
+    local task
+    for task in "${runner_tasks[@]}"; do
+      runner-run-task "${task}"
+    done
     return 0
   fi
   ## Nothing to run

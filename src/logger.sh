@@ -26,7 +26,7 @@ logger-log() {
   fi
   if list-includes "${1}" -d --debug; then
     shift 1
-    echo "$(colorize -c grey "${*}")" >&2
+    echo "$(colorize -c light-grey "${*}")" >&2
     return
   fi
   echo "${*}" >&2

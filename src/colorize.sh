@@ -86,7 +86,7 @@ colorize() {
     str="${1}"
     shift 1
     ## Replace reset characters with our current color state.
-    str="${str//${color_reset}/${color}${bold}}"
+    str="${str//${color_reset}/${color_reset}${color}${bold}}"
     ## Print the string
     echo -n "${color}${bold}${str}"
   done
