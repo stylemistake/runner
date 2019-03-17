@@ -12,9 +12,19 @@ time-unix() {
 }
 
 ## Returns a unix timestamp in milliseconds
-time-unix-ms() {
-  time-gnu-date "+%s%3N"
-}
+if [[ -n ${EPOCHREALTIME} ]]; then
+  ## Use a bash magic variable which returns unix time in microseconds
+  ## as a floating point.
+  time-unix-ms() {
+    local time="${EPOCHREALTIME/./}"
+    echo "${time::-3}"
+  }
+else
+  ## Use GNU date from coreutils
+  time-unix-ms() {
+    time-gnu-date "+%s%3N"
+  }
+fi
 
 ## Returns a human readable duration in milliseconds
 ## Usage: ${0} <time_ms>

@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-set -e
+# set -e
 
 source_files=(bin/runner src/*.sh runnerfile.sh)
 publish_files=(bin completion src LICENSE.md README.md VERSION)
 
 task-default() {
   runner-run-task test
+  runner-run-task shellcheck
 }
 
 task-shellcheck() {
@@ -13,7 +14,8 @@ task-shellcheck() {
 }
 
 task-test() {
-  logger-exec bash3 test/unit.sh
+  logger-exec bash test/unit.sh
+  logger-exec bash test/worker-model.sh
 }
 
 task-readme() {

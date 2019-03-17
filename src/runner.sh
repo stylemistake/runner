@@ -14,7 +14,7 @@ source "${runner_src_dir}/logger.sh"
 source "${runner_src_dir}/misc.sh"
 source "${runner_src_dir}/time.sh"
 source "${runner_src_dir}/runner-master.sh"
-source "${runner_src_dir}/runner-slave.sh"
+source "${runner_src_dir}/runner-worker.sh"
 
 ## Default task
 runner_default_task="default"
@@ -190,7 +190,7 @@ runner-bootstrap() {
   if [[ ${#runner_tasks[@]} -gt 0 ]]; then
     local task
     for task in "${runner_tasks[@]}"; do
-      runner-run-task "${task}"
+      runner-run-task "${task}" || return 1
     done
     return 0
   fi
