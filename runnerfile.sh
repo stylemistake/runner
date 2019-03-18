@@ -10,24 +10,29 @@ task-default() {
   runner-run-task shellcheck
 }
 
+task-test() {
+  logger-exec bash test/unit.sh
+  logger-exec bash test/worker-model.sh
+}
+
 task-shellcheck() {
+  ## NOTE: SC1036,SC1088 - these fail on travis builds because they
+  ## don't like function declarations like @depends() { ... }
+  ## NOTE: SC2164 - ignored mainly because we assume user can do "set -e",
+  ## and those particular detections are on the last line, which returns
+  ## the last error code anyway.
   logger-exec shellcheck \
     --shell=bash \
-    --exclude=SC2164 \
+    --exclude=SC1036,SC1088,SC2164 \
     "${source_files[@]}"
 }
 
 task-shellcheck-watch() {
   watch -c -n 5 shellcheck \
     --shell=bash \
-    --exclude=SC2164 \
+    --exclude=SC1036,SC1088,SC2164 \
     --color=always \
     "${source_files[@]}"
-}
-
-task-test() {
-  logger-exec bash test/unit.sh
-  logger-exec bash test/worker-model.sh
 }
 
 task-readme() {
