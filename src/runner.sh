@@ -1,4 +1,5 @@
-# runner.sh
+## runner.sh
+## Main functions for building a task runner.
 
 ## Resolve source directory
 if [[ -z ${runner_src_dir} ]]; then
@@ -6,14 +7,23 @@ if [[ -z ${runner_src_dir} ]]; then
 fi
 
 ## Include core dependencies
+# shellcheck source=src/argparse.sh
 source "${runner_src_dir}/argparse.sh"
+# shellcheck source=src/colorize.sh
 source "${runner_src_dir}/colorize.sh"
+# shellcheck source=src/dir.sh
 source "${runner_src_dir}/dir.sh"
+# shellcheck source=src/list.sh
 source "${runner_src_dir}/list.sh"
+# shellcheck source=src/logger.sh
 source "${runner_src_dir}/logger.sh"
+# shellcheck source=src/misc.sh
 source "${runner_src_dir}/misc.sh"
+# shellcheck source=src/time.sh
 source "${runner_src_dir}/time.sh"
+# shellcheck source=src/runner-master.sh
 source "${runner_src_dir}/runner-master.sh"
+# shellcheck source=src/runner-worker.sh
 source "${runner_src_dir}/runner-worker.sh"
 
 ## Default task
@@ -32,9 +42,6 @@ runner_args=("${@}")
 runner_flags=()
 runner_tasks=()
 
-## Store completed tasks
-runner_tasks_completed=()
-
 
 ##  Utility functions
 ## --------------------------------------------------------
@@ -48,7 +55,9 @@ runner-log() {
 ## --------------------------------------------------------
 
 ## Get a list of all tasks
-## Usage: runner-get-tasks [--no-prefix]
+## Usage: runner-get-tasks [--with-prefix]
+## TODO: --with-prefix is never used
+# shellcheck disable=SC2120
 runner-get-tasks() {
   local IFS=$'\n'
   local prefix_part="declare -f "
@@ -69,9 +78,10 @@ runner-get-tasks() {
 ## Get a human readable list of all tasks
 ## This one is meant to be used in CLI.
 runner-show-tasks() {
-  echo "Available tasks: $(runner-get-tasks)"
+  echo "Available tasks:"
   local -a tasks
   ## Shellcheck pattern SC2207 to read an array
+  # shellcheck disable=SC2119
   IFS=" " read -r -a tasks <<< "$(runner-get-tasks)"
   if [[ ${#tasks[@]} -eq 0 ]]; then
     echo "  $(colorize -c light-grey \<none\>)"
@@ -113,7 +123,8 @@ runner-run-task() {
   time_start="$(time-unix-ms)"
   ## Save bash option state
   ## See: https://superuser.com/a/946451/478493
-  local bash_opt_state="$(set +o)"
+  local bash_opt_state
+  bash_opt_state="$(set +o)"
   ## Run task in a controlled subshell
   set +e
   (

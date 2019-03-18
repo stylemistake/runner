@@ -1,10 +1,10 @@
-# list.sh
+## list.sh
 ## Functions for working with lists
 
 ## Usage: ${0} <predicate> [<value_1> <value_2> ...]
 list-includes() {
   for arg in "${@:2}"; do
-    if [[ ${1} == ${arg} ]]; then
+    if [[ ${1} == "${arg}" ]]; then
       return 0
     fi
   done
@@ -27,11 +27,11 @@ list-index-of() {
   local item
   local -i index=0
   for item in "${!__array_ref_list}"; do
-    if [[ ${item} == ${predicate} ]]; then
+    if [[ ${item} == "${predicate}" ]]; then
       echo "${index}"
       return
     fi
-    let index+=1
+    (( index+=1 ))
   done
 }
 
@@ -46,12 +46,12 @@ list-lookup() {
   local item
   local -i index=0
   for item in "${!__array_ref_keys_list}"; do
-    if [[ ${item} == ${predicate} ]]; then
+    if [[ ${item} == "${predicate}" ]]; then
       local __value_ref="${__array_ref_values}[${index}]"
       echo "${!__value_ref}"
       return
     fi
-    let index+=1
+    (( index+=1 ))
   done
 }
 
@@ -65,7 +65,7 @@ list-unset-by() {
   for index in "${indexes[@]}"; do
     local __item_ref="${__array_ref}[${index}]"
     local item="${!__item_ref}"
-    if [[ ${item} == ${predicate} ]]; then
+    if [[ ${item} == "${predicate}" ]]; then
       unset "${__array_ref}[${index}]"
     fi
   done

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+## Autocompletion for Runner CLI
 
 _runner_completions() {
   ## A list of all available options for 'runner'.

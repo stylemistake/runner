@@ -1,4 +1,4 @@
-# misc.sh
+## misc.sh
 ## This file includes functions we couldn't move to other modules
 ## but which have utility value.
 
@@ -15,7 +15,7 @@ is-defined() {
 find-executable-or-die() {
   local path_to_bin
   path_to_bin="$(command -v "${@}" | head -1)"
-  if [[ -z path_to_bin ]]; then
+  if [[ -z ${path_to_bin} ]]; then
     echo "Could not find '${1}', aborting..."
     exit 1
   fi
@@ -47,7 +47,8 @@ needs-rebuild() {
     local source="${1}"
     shift 1
     if [[ ${flag} == "-d" ]]; then
-      local files_newer="$(find "${source}" -type f -newer "${target}")"
+      local files_newer
+      files_newer="$(find "${source}" -type f -newer "${target}")"
       if [[ -n ${files_newer} ]]; then
         return 0
       fi

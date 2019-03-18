@@ -32,5 +32,5 @@ runner_src_dir="$(runner-realpath "${runner_src_dir}")"
 source "${runner_src_dir}/runner.sh"
 
 ## Include CLI specific files
-# shellcheck source=src/cli.sh
+# shellcheck source=src/runner-cli.sh
 source "${runner_src_dir}/runner-cli.sh"

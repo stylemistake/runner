@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd "$(dirname ${0})/.."
+cd "$(dirname "${0}")/.."
 # set -e
 
 source src/runner.sh
@@ -28,16 +28,14 @@ task-group-1() {
 
 task-group-1-foo() {
   @depends common-leaf
-  echo "group-1-foo: Sleeping for 1 seconds"
+  echo "group-1-foo: Sleeping for 1 second"
   sleep 1
-  echo "group-1-foo: Finished sleeping"
 }
 
 task-group-1-bar() {
   @depends common-leaf
-  echo "group-1-bar: Sleeping for 2 seconds"
-  sleep 2
-  echo "group-1-bar: Finished sleeping"
+  echo "group-1-bar: Sleeping for 1 second"
+  sleep 1
 }
 
 ## Group 2
@@ -47,16 +45,14 @@ task-group-2() {
 
 task-group-2-foo() {
   @depends common-leaf
-  echo "group-2-foo: Sleeping for 3 seconds"
-  sleep 3
-  echo "group-2-foo: Finished sleeping"
+  echo "group-2-foo: Sleeping for 2 seconds"
+  sleep 2
 }
 
 task-group-2-bar() {
   @depends common-leaf
-  echo "group-2-bar: Sleeping for 4 seconds"
-  sleep 4
-  echo "group-2-bar: Finished sleeping"
+  echo "group-2-bar: Sleeping for 2 seconds"
+  sleep 2
 }
 
 

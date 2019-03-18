@@ -1,16 +1,16 @@
-# runner-master.sh
+## runner-master.sh
+## Master server which spawns task workers
+
+declare runner_tasks
 
 runner_master_tasks=()
-runner_master_tasks_pid=()
 runner_master_deps=()
 runner_master_deps_parent=()
 runner_master_fifo=""
 runner_master_fifo_dir="/tmp/runner-fifo.$$"
 
 runner-master-init() {
-  trap 'runner-master-exit ${?}' EXIT INT TERM KILL
-  ## Publish master params
-  runner_master_pid="${$}"
+  trap 'runner-master-exit ${?}' EXIT INT TERM
   ## Create fifo directory
   mkdir -p "${runner_master_fifo_dir}"
   ## Create master fifo
@@ -34,7 +34,7 @@ runner-master-init() {
     runner-master-recv msg
     local msg_worker="${msg[0]}"
     local msg_command="${msg[1]}"
-    local msg_args="${msg[@]:2}"
+    local msg_args=("${msg[@]:2}")
     ## Handle dependency
     if [[ ${msg_command} == 'dependency' ]]; then
       local task_dependency="${msg_args[0]}"
@@ -49,11 +49,11 @@ runner-master-init() {
     ## Handle finished task
     if [[ ${msg_command} == 'done' ]]; then
       ## Find and notify dependents
-      local dep_i
-      for dep_i in "${!runner_master_deps[@]}"; do
-        local dep="${runner_master_deps[${dep_i}]}"
-        local dep_parent="${runner_master_deps_parent[${dep_i}]}"
-        if [[ ${msg_worker} == ${dep} ]]; then
+      local index
+      for index in "${!runner_master_deps[@]}"; do
+        local dep="${runner_master_deps[${index}]}"
+        local dep_parent="${runner_master_deps_parent[${index}]}"
+        if [[ ${msg_worker} == "${dep}" ]]; then
           runner-master-send "${dep_parent}" resolve "${dep}"
         fi
       done
@@ -65,13 +65,14 @@ runner-master-init() {
 
 ## Usage: ${0} <exit_code>
 runner-master-exit() {
-  trap - EXIT INT TERM KILL
+  trap - EXIT INT TERM
   local exit_code="${1:-0}"
   runner-master-log "Exiting with ${exit_code}"
   ## Close pipes
   exec 3>&-
-  ## Terminate own process tree
-  kill 0
+  ## TODO: Do we really need to call 'kill 0' on the master?
+  # ## Terminate own process tree
+  # kill 0
   ## Remove fifo directory
   rm -rf "${runner_master_fifo_dir}"
   ## Exit with provided exit code
@@ -80,11 +81,9 @@ runner-master-exit() {
 
 runner-master-spawn-worker() {
   local task="${1}"
-  local pid
-  runner-master-log "Spawning '${task}'"
-  runner-worker-init "${task}" & pid="${!}"
   runner_master_tasks+=("${task}")
-  runner_master_tasks_pid+=("${pid}")
+  runner-master-log "Spawning '${task}'"
+  runner-worker-init "${task}" &
 }
 
 ## Usage: ${0} <array_ref>
@@ -92,6 +91,7 @@ runner-master-spawn-worker() {
 runner-master-recv() {
   local __array_ref="${1}"
   local __array_ref_list="${1}[@]"
+  # shellcheck disable=SC2229
   read -ra "${__array_ref}" <&3
   runner-master-log "Recv: ${!__array_ref_list}"
 }
@@ -103,7 +103,7 @@ runner-master-send() {
   shift 1
   local msg=("${worker}" "${@}")
   local worker_fifo="${runner_master_fifo_dir}/worker.${worker}.fifo"
-  runner-master-log "Send: ${msg[@]}"
+  runner-master-log "Send: ${msg[*]}"
   echo "${msg[@]}" >"${worker_fifo}"
 }
 

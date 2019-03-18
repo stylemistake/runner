@@ -1,5 +1,8 @@
 # list.sh
-## Unit tests for list.sh
+## Unit tests
+
+# shellcheck disable=SC2034
+# shellcheck disable=2154
 
 tests+=(
   test-list-includes
@@ -16,7 +19,6 @@ test-list-includes() {
 
 test-list-join-by() {
   local list=(a b c d e)
-  local list_2=(A B C D E)
   local str
   str="$(list-join-by "," "${list[@]}")"
   [[ ${str} == "a,b,c,d,e" ]]

@@ -43,7 +43,7 @@ argparse-get-arg-param() {
   for arg in "${argparse_args[@]}"; do
     if [[ -n ${return_next} ]]; then
       if [[ ${arg} == -* ]]; then
-        echo "Invalid parameter for argument: ${@} <param>, got: '${arg}'" >&2
+        echo "Invalid parameter for argument: ${*} <param>, got: '${arg}'" >&2
         exit 2
       fi
       echo "${arg}"
@@ -55,7 +55,7 @@ argparse-get-arg-param() {
     fi
   done
   if [[ -n ${return_next} ]]; then
-    echo "Missing required parameter for argument: ${@} <param>" >&2
+    echo "Missing required parameter for argument: ${*} <param>" >&2
     exit 2
   fi
 }

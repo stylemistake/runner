@@ -1,4 +1,4 @@
-# time.sh
+## time.sh
 ## Functions for working with time and date
 
 ## Alias for GNU date

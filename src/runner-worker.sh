@@ -1,14 +1,16 @@
-# runner-worker.sh
+## runner-worker.sh
+## Task worker
+
+declare runner_master_fifo
+declare runner_master_fifo_dir
 
 runner_worker_name=""
-runner_worker_pid=""
 runner_worker_fifo=""
 
 runner-worker-init() {
-  trap 'runner-worker-exit ${?}' EXIT INT TERM KILL
+  trap 'runner-worker-exit ${?}' EXIT INT TERM
   local task="${1}"
   runner_worker_name="${task}"
-  runner_worker_pid="${BASHPID}"
   runner_worker_fifo="${runner_master_fifo_dir}/worker.${task}.fifo"
   ## Create worker fifo
   mkfifo "${runner_worker_fifo}"
@@ -18,12 +20,12 @@ runner-worker-init() {
   ## Run task
   runner-worker-log "Ready"
   runner-run-task "${runner_worker_name}"
-  runner-worker-send done
+  runner-worker-send "done"
 }
 
 ## Usage: ${0} <exit_code>
 runner-worker-exit() {
-  trap - EXIT INT TERM KILL
+  trap - EXIT INT TERM
   local exit_code="${1:-0}"
   runner-worker-log "Exiting with ${exit_code}"
   ## Close pipes
@@ -39,7 +41,7 @@ runner-worker-depends() {
   local deps=("${@}")
   local dep
   for dep in "${deps[@]}"; do
-    runner-worker-send dependency "${dep}"
+    runner-worker-send "dependency" "${dep}"
   done
   ## Start blocking
   while true; do
@@ -50,9 +52,8 @@ runner-worker-depends() {
     ## Receive message
     local msg
     runner-worker-recv msg
-    local msg_worker="${msg[0]}"
     local msg_command="${msg[1]}"
-    local msg_args="${msg[@]:2}"
+    local msg_args=("${msg[@]:2}")
     ## Handle resolved dependency
     if [[ ${msg_command} == "resolve" ]]; then
       ## Unset matching dependency (no longer blocking)
@@ -66,6 +67,7 @@ runner-worker-depends() {
 runner-worker-recv() {
   local __array_ref="${1}"
   local __array_ref_list="${1}[@]"
+  # shellcheck disable=SC2229
   read -ra "${__array_ref}" <&3
   runner-worker-log "Recv: ${!__array_ref_list}"
 }
@@ -75,7 +77,7 @@ runner-worker-recv() {
 runner-worker-send() {
   local worker="${runner_worker_name}"
   local msg=("${worker}" "${@}")
-  runner-worker-log "Send: ${msg[@]}"
+  runner-worker-log "Send: ${msg[*]}"
   echo "${msg[@]}" >&4
 }
 

@@ -1,12 +1,14 @@
-#!/usr/bin/env bash
-
-## NOTE: This script depends on runner.sh to be loaded first.
+## runner-cli.sh
+## Command line interface thingies
 
 ## Globals that come from the entry points
 declare runner_src_dir
 
+## Variable which signals that runner has already bootstrapped
+declare runner_bootstrapped
+
 ## Runnerfile names that CLI will be looking for in current directory.
-declare -a runner_file_default_names=(
+runner_file_default_names=(
   'runnerfile.sh'
   'Runnerfile.sh'
   'runnerfile'
@@ -169,4 +171,7 @@ if [[ -n "${runner_list_tasks}" ]]; then
   runner-cli-list-tasks
 fi
 
-runner-bootstrap
+## Bootstrap the runner if it wasn't bootstrapped manually
+if [[ -z ${runner_bootstrapped} ]]; then
+  runner-bootstrap
+fi
