@@ -27,7 +27,7 @@ color_reset="$(echo -e '\e[0m')"
 colorize() {
   local color
   local bold
-  local str
+  local result
   for ((;;)); do
     if [[ ${#} -eq 0 ]]; then
       break
@@ -71,28 +71,33 @@ colorize() {
       continue
     fi
     if [[ ${1} == "-b" ]]; then
-      bold="${color_bold}"
       shift 1
+      bold="${color_bold}"
       continue
     fi
     if [[ ${1} == "+b" ]]; then
-      bold=""
       shift 1
+      bold=""
       continue
     fi
     if [[ ${1} == "-r" ]]; then
-      echo -n "${color_reset}"
+      shift 1
+      ## Append the reset character
+      result+="${color_reset}"
+      ## Reset color state
       color=""
       bold=""
-      shift 1
       continue
     fi
-    str="${1}"
+    local str="${1}"
     shift 1
     ## Replace reset characters with our current color state.
     str="${str//${color_reset}/${color_reset}${color}${bold}}"
-    ## Print the string
-    echo -n "${color}${bold}${str}"
+    ## Append the string
+    result+="${color}${bold}${str}"
   done
-  echo "${color_reset}"
+  ## Append the reset character
+  result+="${color_reset}"
+  ## Print the final string
+  echo "${result}"
 }

@@ -8,6 +8,12 @@
 logger_verbosity=3
 # logger_verbosity_levels=(error action warning info debug)
 
+## Allow enabling of debug logs using this environment variable
+declare DEBUG
+if [[ -n ${DEBUG} ]]; then
+  logger_verbosity=4
+fi
+
 ## Logs a message
 ## You can use environment variable LOGLEVEL to set desired level of
 ## verbosity
