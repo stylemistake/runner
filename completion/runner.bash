@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 ## Autocompletion for Runner CLI
 
+## Copyright (c) 2019 Aleksej Komarov
+## SPDX-License-Identifier: LGPL-3.0-or-later
+
 _runner_completions() {
   ## A list of all available options for 'runner'.
   local -a options=(

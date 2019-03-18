@@ -1,5 +1,9 @@
-# argparse.sh
-## Unit tests
+## argparse.sh
+## Unit tests for argparse.sh
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 tests+=(
   test-argparse

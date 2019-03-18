@@ -1,8 +1,7 @@
 # Runner
 
-[![Travis](https://travis-ci.org/stylemistake/runner.svg)][travis]
-[![NPM](https://badge.fury.io/js/bash-task-runner.svg)][npm]
-[![Gitter](https://badges.gitter.im/stylemistake/bash-task-runner.svg)][gitter]
+[![Travis](https://travis-ci.org/stylemistake/runner.svg)](https://travis-ci.org/stylemistake/runner)
+[![NPM](https://badge.fury.io/js/bash-task-runner.svg)](https://www.npmjs.com/package/bash-task-runner)
 
 > A simple, lightweight task runner for Bash.
 
@@ -63,10 +62,11 @@ For non-GNU environments, it also depends on:
 
 **Note for macOS users:**
 
-Runner should work with bash version 3.2 and macOS version of coreutils, but
-that way you will miss a lot of the fancy stuff that comes with the Runner.
+Runner works with bash version 3.2 and macOS version of coreutils, but
+you should expect slightly reduced functionality and performance.
 
-For improved experience, use [Homebrew] to install the missing dependencies:
+For improved experience, use [Homebrew](http://brew.sh/) to upgrade those
+packages:
 
 ```bash
 brew install bash coreutils
@@ -112,7 +112,8 @@ installation.
 ### Submodule (vendored)
 
 If you'd like a slightly better story around updating Runner when vendored, you
-can use a Git submodule, if you're [familiar with submodules][submodules]:
+can use a Git submodule, if you're
+[familiar with submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules):
 
 ```bash
 git submodule add https://github.com/stylemistake/runner
@@ -468,30 +469,26 @@ cleanup work or restart certain tasks when needed.
 
 ## Contribution
 
-Please provide pull requests in a separate branch (other than `master`), this
-way it's easier for me to review and pull changes.
+Please provide pull requests in a separate branch (other than `master`).
+This makes it easier for me to review and pull your changes.
 
-Before writing code, open an [issue][issues] to get initial feedback.
+Before writing code, create an issue to get some initial feedback.
 
 
 ## License
 
-This software is covered by GNU Lesser General Public License v3 (LGPL-3.0).
-See [LICENSE.md].
+Copyright (c) 2019 Aleksej Komarov &lt;stylemistake@protonmail.com&gt;
 
+```
+SPDX-License-Identifier: LGPL-3.0-or-later
+```
 
-## Contacts
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU LGPL v3 as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
 
-Style Mistake <[stylemistake@gmail.com]>
+This program is distributed in the hope that it will be useful,
+but **WITHOUT ANY WARRANTY**; without even the implied warranty of
+**MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**.
 
-
-[travis]: https://travis-ci.org/stylemistake/runner
-[gitter]: https://gitter.im/stylemistake/bash-task-runner
-[npm]: https://www.npmjs.com/package/bash-task-runner
-[homebrew]: http://brew.sh/
-[src/runner.sh]: https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
-[issues]: https://github.com/stylemistake/runner/issues
-[submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
-[faq]: https://github.com/stylemistake/runner/wiki/FAQ
-[LICENSE.md]: LICENSE.md
-[stylemistake@gmail.com]: mailto:stylemistake@gmail.com
+[Full license text](LICENSE.md).

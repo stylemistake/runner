@@ -1,5 +1,9 @@
 ## runner-cli.sh
-## Command line interface thingies
+## Command line interface for runner
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 ## Globals that come from the entry points
 declare runner_src_dir

@@ -1,5 +1,9 @@
 ## logger.sh
 ## Logging facilities
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 logger_verbosity=3
 # logger_verbosity_levels=(error action warning info debug)

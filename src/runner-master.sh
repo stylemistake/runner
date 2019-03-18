@@ -1,5 +1,9 @@
 ## runner-master.sh
 ## Master server which spawns task workers
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 declare runner_tasks
 

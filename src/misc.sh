@@ -1,6 +1,9 @@
 ## misc.sh
-## This file includes functions we couldn't move to other modules
-## but which have utility value.
+## Various utility functions
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 get-arch() {
   uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/

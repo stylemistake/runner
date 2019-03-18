@@ -1,5 +1,9 @@
 ## runner.sh
-## Main functions for building a task runner.
+## Main functions of the task runner.
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 ## Resolve source directory
 if [[ -z ${runner_src_dir} ]]; then

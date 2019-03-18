@@ -1,5 +1,9 @@
-# list.sh
-## Unit tests
+## list.sh
+## Unit tests for list.sh
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 # shellcheck disable=SC2034
 # shellcheck disable=2154

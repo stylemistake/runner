@@ -1,5 +1,9 @@
 ## colorize.sh
 ## Color definitions and colorize function
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 color_black="$(echo -e '\e[30m')"
 color_red="$(echo -e '\e[31m')"

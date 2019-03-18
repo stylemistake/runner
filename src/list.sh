@@ -1,5 +1,9 @@
 ## list.sh
 ## Functions for working with lists
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 ## Usage: ${0} <predicate> [<value_1> <value_2> ...]
 list-includes() {

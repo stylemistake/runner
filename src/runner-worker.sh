@@ -1,5 +1,9 @@
 ## runner-worker.sh
 ## Task worker
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
 
 declare runner_master_fifo
 declare runner_master_fifo_dir

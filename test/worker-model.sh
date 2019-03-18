@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+## worker-model.sh
+## Basic test of the runner worker model.
+## --------------------------------------------------------
+##  Copyright (c) 2019 Aleksej Komarov
+##  SPDX-License-Identifier: LGPL-3.0-or-later
+## --------------------------------------------------------
+
 cd "$(dirname "${0}")/.."
 # set -e
 
