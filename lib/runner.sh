@@ -125,7 +125,7 @@ runner-shell-opts-push() {
 }
 
 runner-shell-opts-pop() {
-  local opts="${runner_shell_opts_stack[@]: -1}"
+  local opts="${runner_shell_opts_stack[*]: -1}"
   local stack_len="${#runner_shell_opts_stack[@]}"
   unset "runner_shell_opts_stack[${stack_len}-1]"
   eval "${opts}"

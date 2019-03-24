@@ -39,5 +39,5 @@ annotation-parse() {
     if list-includes annotation_names "${line_items[0]}"; then
       "${handler_fn}" "${line_items[@]}"
     fi
-  done <<< "$(declare -f "${annotated_fn}")"
+  done <<< "${fn_body}"
 }

@@ -5,6 +5,7 @@
 ##  SPDX-License-Identifier: LGPL-3.0-or-later
 ## --------------------------------------------------------
 
+declare runner_task_prefix
 declare runner_master_fifo
 declare runner_master_fifo_dir
 
@@ -53,7 +54,7 @@ runner-worker-exit() {
   ## Terminate own process tree
   ## Use SIGPIPE because it doesn't produce "Terminated" messages
   ## See: https://stackoverflow.com/a/5722874/2245739
-  kill -s PIPE 0
+  # kill -s PIPE 0
   ## Exit with provided exit code
   exit "${exit_code}"
 }

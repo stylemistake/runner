@@ -38,16 +38,18 @@ list-join-by() {
 ## Usage: ${0} <array_ref> <predicate>
 ## Example: ${0} cities "New York"
 list-index-of() {
-  local __array_ref_list="${1}[@]"
+  local __array_ref="${1}"
+  local indexes=()
+  eval 'indexes=("${!'"${__array_ref}"'[@]}")'
   local predicate="${2}"
-  local item
-  local -i index=0
-  for item in "${!__array_ref_list}"; do
+  local index
+  for index in "${indexes[@]}"; do
+    local __item_ref="${__array_ref}[${index}]"
+    local item="${!__item_ref}"
     if [[ ${item} == "${predicate}" ]]; then
       echo "${index}"
-      return
+      exit
     fi
-    (( index+=1 ))
   done
 }
 

@@ -8,6 +8,7 @@
 declare runner_tasks
 
 runner_master_tasks=()
+runner_master_tasks_pid=()
 runner_master_deps=()
 runner_master_deps_parent=()
 runner_master_fifo=""
@@ -62,13 +63,17 @@ runner-master-init() {
         fi
       done
       ## Find and unset this task from currently running tasks
-      list-unset-by runner_master_tasks "${msg_worker}"
+      local index
+      index="$(list-index-of runner_master_tasks "${msg_worker}")"
+      unset runner_master_tasks["${index}"]
+      unset runner_master_tasks_pid["${index}"]
     fi
     ## Handle error
     if [[ ${msg_command} == 'error' ]]; then
       runner-master-exit "${msg_args[0]}"
     fi
   done
+  runner-master-exit 0
 }
 
 ## Usage: ${0} <exit_code>
@@ -80,18 +85,21 @@ runner-master-exit() {
   exec 3>&-
   ## Remove fifo directory
   rm -rf "${runner_master_fifo_dir}"
-  ## Use SIGPIPE because it doesn't produce "Terminated" messages
-  ## See: https://stackoverflow.com/a/5722874/2245739
-  kill -s PIPE 0
+  ## Send SIGTERM to all tasks that are still running
+  for pid in "${runner_master_tasks_pid[@]}"; do
+    kill -s TERM "${pid}" 2>/dev/null || true
+  done
   ## Exit with provided exit code
   exit "${exit_code}"
 }
 
 runner-master-spawn-worker() {
   local task="${1}"
+  local pid
   runner-master-log "Spawning '${task}'"
-  runner-worker-init "${task}" &
+  runner-worker-init "${task}" & pid=$!
   runner_master_tasks+=("${task}")
+  runner_master_tasks_pid+=("${pid}")
 }
 
 ## Usage: ${0} <array_ref>
