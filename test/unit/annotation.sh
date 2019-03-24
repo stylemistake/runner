@@ -10,17 +10,17 @@ tests+=(
 )
 
 test-annotation() {
-  annotation-declare @test
+  annotation-declare @annot
   annotation-parse annotated-fn handler-fn
 }
 
 annotated-fn() {
-  @test hello 1 2
+  @annot hello 1 2
   true
 }
 
 handler-fn() {
-  [[ ${1} == '@test' ]]
+  [[ ${1} == '@annot' ]]
   [[ ${2} == 'hello' ]]
   [[ ${3} == '1' ]]
   [[ ${4} == '2' ]]
