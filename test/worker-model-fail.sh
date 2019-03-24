@@ -39,6 +39,7 @@ task-group-1-bar() {
   @depends common-leaf
   echo "group-1-bar: Sleeping for 1 second"
   sleep 1
+  false
 }
 
 ## Group 2

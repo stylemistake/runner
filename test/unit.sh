@@ -6,15 +6,19 @@
 ##  SPDX-License-Identifier: LGPL-3.0-or-later
 ## --------------------------------------------------------
 
+# shellcheck disable=SC2154
+# shellcheck disable=SC1090
+
 cd "$(dirname "${0}")/.."
 set -e
 
-source src/runner.sh
+source lib/runner.sh
 
 ## Import tests
 tests=()
-source test/unit/argparse.sh
-source test/unit/list.sh
+for unit in test/unit/*.sh; do
+  source "${unit}"
+done
 
 ## Run tests
 for test in "${tests[@]}"; do

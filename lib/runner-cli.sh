@@ -6,7 +6,7 @@
 ## --------------------------------------------------------
 
 ## Globals that come from the entry points
-declare runner_src_dir
+declare runner_lib_dir
 
 ## Variable which signals that runner has already bootstrapped
 declare runner_bootstrapped
@@ -56,7 +56,7 @@ runner-cli-list-tasks() {
 ## Outputs the current version number
 runner-cli-version() {
   trap - EXIT
-  cat "${runner_src_dir}/../VERSION"
+  cat "${runner_lib_dir}/../VERSION"
   exit 0
 }
 
@@ -64,7 +64,7 @@ runner-cli-version() {
 runner-cli-get-completions-code() {
   trap - EXIT
   local shell="${1:-bash}"
-  echo "source ${runner_src_dir}/../completion/runner.${shell}"
+  echo "source ${runner_lib_dir}/../completion/runner.${shell}"
   exit 0
 }
 

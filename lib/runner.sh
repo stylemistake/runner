@@ -6,29 +6,31 @@
 ## --------------------------------------------------------
 
 ## Resolve source directory
-if [[ -z ${runner_src_dir} ]]; then
-  runner_src_dir="$(dirname "${BASH_SOURCE[0]}")"
+if [[ -z ${runner_lib_dir} ]]; then
+  runner_lib_dir="$(dirname "${BASH_SOURCE[0]}")"
 fi
 
 ## Include core dependencies
-# shellcheck source=src/argparse.sh
-source "${runner_src_dir}/argparse.sh"
-# shellcheck source=src/colorize.sh
-source "${runner_src_dir}/colorize.sh"
-# shellcheck source=src/dir.sh
-source "${runner_src_dir}/dir.sh"
-# shellcheck source=src/list.sh
-source "${runner_src_dir}/list.sh"
-# shellcheck source=src/logger.sh
-source "${runner_src_dir}/logger.sh"
-# shellcheck source=src/misc.sh
-source "${runner_src_dir}/misc.sh"
-# shellcheck source=src/time.sh
-source "${runner_src_dir}/time.sh"
-# shellcheck source=src/runner-master.sh
-source "${runner_src_dir}/runner-master.sh"
-# shellcheck source=src/runner-worker.sh
-source "${runner_src_dir}/runner-worker.sh"
+# shellcheck source=lib/annotation.sh
+source "${runner_lib_dir}/annotation.sh"
+# shellcheck source=lib/argparse.sh
+source "${runner_lib_dir}/argparse.sh"
+# shellcheck source=lib/colorize.sh
+source "${runner_lib_dir}/colorize.sh"
+# shellcheck source=lib/dir.sh
+source "${runner_lib_dir}/dir.sh"
+# shellcheck source=lib/list.sh
+source "${runner_lib_dir}/list.sh"
+# shellcheck source=lib/logger.sh
+source "${runner_lib_dir}/logger.sh"
+# shellcheck source=lib/misc.sh
+source "${runner_lib_dir}/misc.sh"
+# shellcheck source=lib/time.sh
+source "${runner_lib_dir}/time.sh"
+# shellcheck source=lib/runner-master.sh
+source "${runner_lib_dir}/runner-master.sh"
+# shellcheck source=lib/runner-worker.sh
+source "${runner_lib_dir}/runner-worker.sh"
 
 ## Default task
 runner_default_task="default"
@@ -99,7 +101,7 @@ runner-show-tasks() {
 runner-is-task() {
   local task
   local verbose
-  if list-includes "${1}" -v --verbose; then
+  if list-in "${1}" -v --verbose; then
     verbose=1
     shift 1
   fi
@@ -114,6 +116,21 @@ runner-is-task() {
 }
 
 
+runner_shell_opts_stack=()
+
+runner-shell-opts-push() {
+  local opts
+  opts="$(set +o); set -${-}"
+  runner_shell_opts_stack+=("${opts}")
+}
+
+runner-shell-opts-pop() {
+  local opts="${runner_shell_opts_stack[@]: -1}"
+  local stack_len="${#runner_shell_opts_stack[@]}"
+  unset "runner_shell_opts_stack[${stack_len}-1]"
+  eval "${opts}"
+}
+
 ## Runs a single task
 ## Usage: runner-run-task <task> [<argument> ...]
 runner-run-task() {
@@ -125,20 +142,19 @@ runner-run-task() {
   ## Save time for calculating diff
   local -i time_start
   time_start="$(time-unix-ms)"
-  ## Save bash option state
-  ## See: https://superuser.com/a/946451/478493
-  local bash_opt_state
-  bash_opt_state="$(set +o)"
-  ## Run task in a controlled subshell
-  set +e
+  ## Run task in controlled environment
+  runner-shell-opts-push
+  set +o errexit
   (
-    set -e
+    set -o errexit
+    ## Suppress stdout
+    @suppress-stdout() {
+      exec >/dev/null
+    }
     "${runner_task_prefix}${task}" "${task_args[@]}"
   )
-  ## Save exit code
-  local exit_code=${?}
-  ## Restore bash option state
-  eval "${bash_opt_state}"
+  local exit_code="${?}"
+  runner-shell-opts-pop
   ## Calculate time diff
   local -i time_end
   time_end="$(time-unix-ms)"
@@ -205,7 +221,11 @@ runner-bootstrap() {
   if [[ ${#runner_tasks[@]} -gt 0 ]]; then
     local task
     for task in "${runner_tasks[@]}"; do
-      runner-run-task "${task}" || return 1
+      runner-run-task "${task}"
+      local exit_code="${?}"
+      if [[ ${exit_code} -ne 0 ]]; then
+        return "${exit_code}"
+      fi
     done
     return 0
   fi

@@ -7,7 +7,7 @@
   },
   "files": [
     "bin/*",
-    "src/*",
+    "lib/*",
     "completion/*"
   ],
   "repository": {

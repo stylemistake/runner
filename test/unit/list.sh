@@ -6,9 +6,10 @@
 ## --------------------------------------------------------
 
 # shellcheck disable=SC2034
-# shellcheck disable=2154
+# shellcheck disable=SC2154
 
 tests+=(
+  test-list-in
   test-list-includes
   test-list-join-by
   test-list-index-of
@@ -16,9 +17,16 @@ tests+=(
   test-list-unset-by
 )
 
+test-list-in() {
+  local list=(a b c d e)
+  list-in a "${list[@]}"
+  ! list-in x "${list[@]}"
+}
+
 test-list-includes() {
   local list=(a b c d e)
-  list-includes a "${list[@]}"
+  list-includes list a
+  ! list-includes list x
 }
 
 test-list-join-by() {
@@ -60,9 +68,9 @@ test-list-unset-by() {
   [[ ${#list[@]} -eq 3 ]]
   [[ ${list[0]} == 'a' ]]
   [[ -z ${list[1]} ]]
-  [[ ${list[2]} == 'a' ]]
+  [[ ${list[2]} == 'c' ]]
   [[ -z ${list[3]} ]]
-  [[ ${list[4]} == 'a' ]]
+  [[ ${list[4]} == 'e' ]]
   list-unset-by list b
   [[ ${#list[@]} -eq 3 ]]
   ## Verify that we don't leak local variables

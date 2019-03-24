@@ -19,35 +19,35 @@ fi
 ## verbosity
 ## Usage: ${0} [-adeiw] [<message> ...]
 logger-log() {
-  if list-includes "${1}" -e --error; then
+  if list-in "${1}" -e --error; then
     shift 1
     if [[ ${logger_verbosity} -ge 0 ]]; then
       colorize -b -c light-red "=> " -c white "${*}" >&2
     fi
     return
   fi
-  if list-includes "${1}" -a --action; then
+  if list-in "${1}" -a --action; then
     shift 1
     if [[ ${logger_verbosity} -ge 1 ]]; then
       colorize -b -c light-green "=> " -c white "${*}" >&2
     fi
     return
   fi
-  if list-includes "${1}" -w --warning; then
+  if list-in "${1}" -w --warning; then
     shift 1
     if [[ ${logger_verbosity} -ge 2 ]]; then
       colorize -b -c light-yellow "=> " -c white "${*}" >&2
     fi
     return
   fi
-  if list-includes "${1}" -i --info; then
+  if list-in "${1}" -i --info; then
     shift 1
     if [[ ${logger_verbosity} -ge 3 ]]; then
       colorize -b -c light-blue ":: " -c white "${*}" >&2
     fi
     return
   fi
-  if list-includes "${1}" -d --debug; then
+  if list-in "${1}" -d --debug; then
     shift 1
     if [[ ${logger_verbosity} -ge 4 ]]; then
       colorize -c light-grey "${*}" >&2

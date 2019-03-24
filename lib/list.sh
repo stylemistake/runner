@@ -6,9 +6,21 @@
 ## --------------------------------------------------------
 
 ## Usage: ${0} <predicate> [<value_1> <value_2> ...]
-list-includes() {
+list-in() {
   for arg in "${@:2}"; do
     if [[ ${1} == "${arg}" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+## Usage: ${0} <array_ref> <predicate>
+list-includes() {
+  local __array_ref_list="${1}[@]"
+  local predicate="${2}"
+  for arg in "${!__array_ref_list}"; do
+    if [[ ${arg} == "${predicate}" ]]; then
       return 0
     fi
   done

@@ -100,10 +100,10 @@ a CLI and is compatible with your system.
 
 ### Simple (vendored)
 
-Just drop `src/runner.sh` anywhere in your project folder:
+Just drop `lib/runner.sh` anywhere in your project folder:
 
 ```bash
-wget https://raw.githubusercontent.com/stylemistake/runner/master/src/runner.sh
+wget https://raw.githubusercontent.com/stylemistake/runner/master/lib/runner.sh
 ```
 
 Then skip to [Runnerfile](#runnerfile) for how to use a vendored Runner

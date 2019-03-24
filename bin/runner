@@ -22,20 +22,20 @@ if ! readlink --version >/dev/null 2>&1; then
 fi
 
 if [[ "${FUNCNAME[0]}" == source ]]; then
-  echo "Can't source the 'runner' executable. Instead, source 'src/runner.sh' directly."
+  echo "Can't source the 'runner' executable. Instead, source 'lib/runner.sh' directly."
   exit 1
 fi
 
 ## Resolve the absolute path to the source folder
-runner_src_dir="$(dirname "$(runner-realpath "${0}")")/../src"
+runner_lib_dir="$(dirname "$(runner-realpath "${0}")")/../lib"
 
 ## Resolve resolved path to remove the '../' part
-runner_src_dir="$(runner-realpath "${runner_src_dir}")"
+runner_lib_dir="$(runner-realpath "${runner_lib_dir}")"
 
 ## Include core files
-# shellcheck source=src/runner.sh
-source "${runner_src_dir}/runner.sh"
+# shellcheck source=lib/runner.sh
+source "${runner_lib_dir}/runner.sh"
 
 ## Include CLI specific files
-# shellcheck source=src/runner-cli.sh
-source "${runner_src_dir}/runner-cli.sh"
+# shellcheck source=lib/runner-cli.sh
+source "${runner_lib_dir}/runner-cli.sh"

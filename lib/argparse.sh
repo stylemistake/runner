@@ -33,7 +33,7 @@ argparse-parse() {
 ## Usage: ${0} [<args> ...]
 argparse-has-args() {
   for arg in "${argparse_args[@]}"; do
-    if list-includes "${arg}" "${@}"; then
+    if list-in "${arg}" "${@}"; then
       return 0
     fi
   done
@@ -53,7 +53,7 @@ argparse-get-arg-param() {
       echo "${arg}"
       return
     fi
-    if list-includes "${arg}" "${@}"; then
+    if list-in "${arg}" "${@}"; then
       return_next=1
       continue
     fi

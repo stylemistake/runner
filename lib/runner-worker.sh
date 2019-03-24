@@ -12,6 +12,7 @@ runner_worker_name=""
 runner_worker_fifo=""
 
 runner-worker-init() {
+  set +e
   trap 'runner-worker-exit ${?}' EXIT INT TERM
   local task="${1}"
   runner_worker_name="${task}"
@@ -23,7 +24,18 @@ runner-worker-init() {
   exec 4<>"${runner_master_fifo}"
   ## Run task
   runner-worker-log "Ready"
+  ## Parse annotations
+  annotation-declare @depends
+  annotation-parse \
+    "${runner_task_prefix}${runner_worker_name}" \
+    runner-worker-annotation-handler
+  ## Run task
   runner-run-task "${runner_worker_name}"
+  local exit_code="${?}"
+  if [[ ${exit_code} -gt 0 ]]; then
+    runner-worker-send "error" "${exit_code}"
+    return 0
+  fi
   runner-worker-send "done"
 }
 
@@ -32,13 +44,24 @@ runner-worker-exit() {
   trap - EXIT INT TERM
   local exit_code="${1:-0}"
   runner-worker-log "Exiting with ${exit_code}"
+  if [[ ${exit_code} -ne 0 ]]; then
+    runner-log -e "Task '${runner_worker_name}' failed (${exit_code})"
+  fi
   ## Close pipes
   exec 3>&-
   exec 4>&-
   ## Terminate own process tree
-  kill 0
+  ## Use SIGPIPE because it doesn't produce "Terminated" messages
+  ## See: https://stackoverflow.com/a/5722874/2245739
+  kill -s PIPE 0
   ## Exit with provided exit code
   exit "${exit_code}"
+}
+
+runner-worker-annotation-handler() {
+  if [[ ${1} == '@depends' ]]; then
+    eval "runner-worker-depends ${*:2}"
+  fi
 }
 
 runner-worker-depends() {

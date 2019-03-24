@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# set -e
+set -e
 shopt -s globstar
 
-source_files=(bin/runner src/**/*.sh test/**/*.sh runnerfile.sh)
-publish_files=(bin completion src LICENSE.md README.md VERSION)
+source_files=(bin/runner lib/**/*.sh test/**/*.sh runnerfile.sh)
+publish_files=(bin completion lib LICENSE.md README.md VERSION)
 
 task-default() {
   runner-run-task test

@@ -46,7 +46,7 @@ runner-master-init() {
       runner_master_deps+=("${task_dependency}")
       runner_master_deps_parent+=("${msg_worker}")
       ## Spawn a task
-      if ! list-includes "${task_dependency}" "${runner_master_tasks[@]}"; then
+      if ! list-includes runner_master_tasks "${task_dependency}"; then
         runner-master-spawn-worker "${task_dependency}"
       fi
     fi
@@ -64,6 +64,10 @@ runner-master-init() {
       ## Find and unset this task from currently running tasks
       list-unset-by runner_master_tasks "${msg_worker}"
     fi
+    ## Handle error
+    if [[ ${msg_command} == 'error' ]]; then
+      runner-master-exit "${msg_args[0]}"
+    fi
   done
 }
 
@@ -74,20 +78,20 @@ runner-master-exit() {
   runner-master-log "Exiting with ${exit_code}"
   ## Close pipes
   exec 3>&-
-  ## TODO: Do we really need to call 'kill 0' on the master?
-  # ## Terminate own process tree
-  # kill 0
   ## Remove fifo directory
   rm -rf "${runner_master_fifo_dir}"
+  ## Use SIGPIPE because it doesn't produce "Terminated" messages
+  ## See: https://stackoverflow.com/a/5722874/2245739
+  kill -s PIPE 0
   ## Exit with provided exit code
   exit "${exit_code}"
 }
 
 runner-master-spawn-worker() {
   local task="${1}"
-  runner_master_tasks+=("${task}")
   runner-master-log "Spawning '${task}'"
   runner-worker-init "${task}" &
+  runner_master_tasks+=("${task}")
 }
 
 ## Usage: ${0} <array_ref>

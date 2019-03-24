@@ -10,7 +10,7 @@ setup(
     license="LGPL-3.0",
     scripts=["bin/runner"],
     data_files=[
-        ('src', ['src/cli.sh', 'src/runner.sh']),
+        ('lib', ['lib/cli.sh', 'lib/runner.sh']),
         ('completion', ['completion/runner.bash']),
     ]
 )
