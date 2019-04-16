@@ -53,7 +53,7 @@ alias runner_time="runner_date +%s%3N"
 ## Returns a human readable duration in ms
 runner_pretty_ms() {
   local -i ms="${1}"
-  local result
+  local result=""
   ## If zero or nothing
   if [[ -z ${ms} || ${ms} -lt 1 ]]; then
     echo "0 ms"
