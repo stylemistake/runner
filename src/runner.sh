@@ -213,6 +213,7 @@ runner_bootstrap() {
   ## Clear a trap we set up earlier
   trap - EXIT
   ## Parse arguments
+  local runner_tasks=()
   for arg in "${runner_args[@]}"; do
     if [[ ${arg} == -* ]]; then
       runner_flags+=("${arg}")
