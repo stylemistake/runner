@@ -11,6 +11,12 @@ declare runner_master_fifo_dir
 
 runner_worker_name=""
 runner_worker_fifo=""
+runner_worker_depends_tasks=()
+runner_worker_depends_files=()
+runner_worker_depends_dirs=()
+runner_worker_provides_tasks=()
+runner_worker_provides_files=()
+runner_worker_provides_dirs=()
 
 runner-worker-init() {
   set +e
@@ -27,12 +33,21 @@ runner-worker-init() {
   runner-worker-log "Ready"
   ## Parse annotations
   annotation-declare @depends
+  annotation-declare @provides
   annotation-parse \
     "${runner_task_prefix}${runner_worker_name}" \
     runner-worker-annotation-handler
-  ## Run task
-  runner-run-task "${runner_worker_name}"
-  local exit_code="${?}"
+  ## Wait for dependencies
+  runner-worker-wait-for-dependencies
+  ## Check if needs rebuild
+  if runner-worker-needs-rebuild; then
+    ## Run task
+    runner-run-task "${runner_worker_name}"
+    local exit_code="${?}"
+  else
+    runner-log -i "Skipping $(colorize -c cyan "'${runner_worker_name}'")"
+    local exit_code="0"
+  fi
   if [[ ${exit_code} -gt 0 ]]; then
     runner-worker-send "error" "${exit_code}"
     return 0
@@ -62,19 +77,79 @@ runner-worker-exit() {
 runner-worker-annotation-handler() {
   if [[ ${1} == '@depends' ]]; then
     eval "runner-worker-depends ${*:2}"
+  elif [[ ${1} == '@provides' ]]; then
+    eval "runner-worker-provides ${*:2}"
   fi
 }
 
 runner-worker-depends() {
-  local deps=("${@}")
+  local obj
+  local obj_type
+  ## Sort dependencies into separate piles
+  while [[ ${#} -ne 0 ]]; do
+    if [[ ${1} == -* ]]; then
+      local obj_type="${1}"
+      shift 1
+      continue
+    fi
+    local obj="${1}"
+    shift 1
+    if [[ ${obj_type} == "-t" ]]; then
+      runner_worker_depends_tasks+=("${obj}")
+      continue
+    fi
+    if [[ ${obj_type} == "-f" ]]; then
+      runner_worker_depends_files+=("${obj}")
+      continue
+    fi
+    if [[ ${obj_type} == "-d" ]]; then
+      runner_worker_depends_dirs+=("${obj}")
+      continue
+    fi
+    logger-log -e "Unrecognized @depends flag: '${obj_type}'"
+    exit 1
+  done
+}
+
+runner-worker-provides() {
+  local obj
+  local obj_type
+  ## Sort dependencies into separate piles
+  while [[ ${#} -ne 0 ]]; do
+    if [[ ${1} == -* ]]; then
+      local obj_type="${1}"
+      shift 1
+      continue
+    fi
+    local obj="${1}"
+    shift 1
+    if [[ ${obj_type} == "-t" ]]; then
+      runner_worker_provides_tasks+=("${obj}")
+      continue
+    fi
+    if [[ ${obj_type} == "-f" ]]; then
+      runner_worker_provides_files+=("${obj}")
+      continue
+    fi
+    if [[ ${obj_type} == "-d" ]]; then
+      runner_worker_provides_dirs+=("${obj}")
+      continue
+    fi
+    logger-log -e "Unrecognized @provides flag: '${obj_type}'"
+    exit 1
+  done
+}
+
+runner-worker-wait-for-dependencies() {
   local dep
-  for dep in "${deps[@]}"; do
+  ## Send dependencies to master process
+  for dep in "${runner_worker_depends_tasks[@]}"; do
     runner-worker-send "dependency" "${dep}"
   done
   ## Start blocking
   while true; do
     ## Stop blocking when there are no more depencies
-    if [[ ${#deps[@]} -eq 0 ]]; then
+    if [[ ${#runner_worker_depends_tasks[@]} -eq 0 ]]; then
       break
     fi
     ## Receive message
@@ -85,9 +160,17 @@ runner-worker-depends() {
     ## Handle resolved dependency
     if [[ ${msg_command} == "resolve" ]]; then
       ## Unset matching dependency (no longer blocking)
-      list-unset-by deps "${msg_args[0]}"
+      list-unset-by runner_worker_depends_tasks "${msg_args[0]}"
     fi
   done
+}
+
+runner-worker-needs-rebuild() {
+  file-compare \
+    -i -f "${runner_worker_depends_files[@]}" \
+    -i -d "${runner_worker_depends_dirs[@]}" \
+    -o -f "${runner_worker_provides_files[@]}" \
+    -o -d "${runner_worker_provides_dirs[@]}"
 }
 
 ## Usage: ${0} <array_ref>

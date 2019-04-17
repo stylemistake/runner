@@ -25,12 +25,14 @@ source "${runner_lib_dir}/list.sh"
 source "${runner_lib_dir}/logger.sh"
 # shellcheck source=lib/misc.sh
 source "${runner_lib_dir}/misc.sh"
-# shellcheck source=lib/time.sh
-source "${runner_lib_dir}/time.sh"
 # shellcheck source=lib/runner-master.sh
 source "${runner_lib_dir}/runner-master.sh"
 # shellcheck source=lib/runner-worker.sh
 source "${runner_lib_dir}/runner-worker.sh"
+# shellcheck source=lib/shell.sh
+source "${runner_lib_dir}/shell.sh"
+# shellcheck source=lib/time.sh
+source "${runner_lib_dir}/time.sh"
 
 ## Default task
 runner_default_task="default"
@@ -115,22 +117,6 @@ runner-is-task() {
   done
 }
 
-
-runner_shell_opts_stack=()
-
-runner-shell-opts-push() {
-  local opts
-  opts="$(set +o); set -${-}"
-  runner_shell_opts_stack+=("${opts}")
-}
-
-runner-shell-opts-pop() {
-  local opts="${runner_shell_opts_stack[*]: -1}"
-  local stack_len="${#runner_shell_opts_stack[@]}"
-  unset "runner_shell_opts_stack[${stack_len}-1]"
-  eval "${opts}"
-}
-
 ## Runs a single task
 ## Usage: runner-run-task <task> [<argument> ...]
 runner-run-task() {
@@ -143,7 +129,7 @@ runner-run-task() {
   local -i time_start
   time_start="$(time-unix-ms)"
   ## Run task in controlled environment
-  runner-shell-opts-push
+  shell-opts-push
   set +o errexit
   (
     set -o errexit
@@ -154,7 +140,7 @@ runner-run-task() {
     "${runner_task_prefix}${task}" "${task_args[@]}"
   )
   local exit_code="${?}"
-  runner-shell-opts-pop
+  shell-opts-pop
   ## Calculate time diff
   local -i time_end
   time_end="$(time-unix-ms)"
@@ -169,38 +155,6 @@ runner-run-task() {
   ## Report success
   runner-log -a "Finished ${task_str} after ${time_diff}"
 }
-
-# ## Runs multiple tasks
-# ## Usage: runner-run-tasks [-p] [<task> ...]
-# runner-run-tasks() {
-#   if [[ ${1} == "-p" || ${1} == "--parallel" ]]; then
-#     runner-run-tasks-parallel "${@:2}"
-#     return ${?}
-#   fi
-#   if ! runner-is-task -v "${@}"; then
-#     return 1
-#   fi
-#   for task in "${@}"; do
-#     runner-run-task "${task}" || return ${?}
-#   done
-# }
-
-# ## Run tasks in parallel.
-# ## Usage: runner-run-tasks-parallel [<task> ...]
-# runner-run-tasks-parallel() {
-#   local -a pid
-#   local -i exits=0
-#   for task in "${@}"; do
-#     runner-run-task "${task}" & pid+=(${!})
-#   done
-#   for pid in "${pid[@]}"; do
-#     wait "${pid}" || exits+=1
-#   done
-#   [[ ${exits} -eq 0 ]] && return 0
-#   [[ ${exits} -eq 1 ]] && return 1
-#   [[ ${exits} -lt ${#} ]] && return 2
-#   return 3
-# }
 
 ## Starts the initial task.
 runner-bootstrap() {
