@@ -5,24 +5,25 @@
 ##  SPDX-License-Identifier: LGPL-3.0-or-later
 ## --------------------------------------------------------
 
-color_black="$(echo -e '\e[30m')"
-color_red="$(echo -e '\e[31m')"
-color_green="$(echo -e '\e[32m')"
-color_yellow="$(echo -e '\e[33m')"
-color_blue="$(echo -e '\e[34m')"
-color_purple="$(echo -e '\e[35m')"
-color_cyan="$(echo -e '\e[36m')"
-color_grey="$(echo -e '\e[90m')"
-color_light_grey="$(echo -e '\e[37m')"
-color_light_red="$(echo -e '\e[91m')"
-color_light_green="$(echo -e '\e[92m')"
-color_light_yellow="$(echo -e '\e[93m')"
-color_light_blue="$(echo -e '\e[94m')"
-color_light_purple="$(echo -e '\e[95m')"
-color_light_cyan="$(echo -e '\e[96m')"
-color_white="$(echo -e '\e[97m')"
-color_bold="$(echo -e '\e[1m')"
-color_reset="$(echo -e '\e[0m')"
+color_black="$(echo -e '\x1b[30m')"
+color_red="$(echo -e '\x1b[31m')"
+color_green="$(echo -e '\x1b[32m')"
+color_yellow="$(echo -e '\x1b[33m')"
+color_blue="$(echo -e '\x1b[34m')"
+color_purple="$(echo -e '\x1b[35m')"
+color_cyan="$(echo -e '\x1b[36m')"
+color_grey="$(echo -e '\x1b[90m')"
+color_light_grey="$(echo -e '\x1b[37m')"
+color_light_red="$(echo -e '\x1b[91m')"
+color_light_green="$(echo -e '\x1b[92m')"
+color_light_yellow="$(echo -e '\x1b[93m')"
+color_light_blue="$(echo -e '\x1b[94m')"
+color_light_purple="$(echo -e '\x1b[95m')"
+color_light_cyan="$(echo -e '\x1b[96m')"
+color_white="$(echo -e '\x1b[97m')"
+color_bold="$(echo -e '\x1b[1m')"
+color_reset_bold="$(echo -e '\x1b[0m')"
+color_reset="$(echo -e '\x1b[0m')"
 
 colorize() {
   local color
@@ -77,7 +78,7 @@ colorize() {
     fi
     if [[ ${1} == "+b" ]]; then
       shift 1
-      bold=""
+      bold="${color_reset_bold}"
       continue
     fi
     if [[ ${1} == "-r" ]]; then
@@ -92,9 +93,9 @@ colorize() {
     local str="${1}"
     shift 1
     ## Replace reset characters with our current color state.
-    str="${str//${color_reset}/${color_reset}${color}${bold}}"
+    str="${str//${color_reset}/${color_reset}${bold}${color}}"
     ## Append the string
-    result+="${color}${bold}${str}"
+    result+="${bold}${color}${str}"
   done
   ## Append the reset character
   result+="${color_reset}"

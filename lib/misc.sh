@@ -19,7 +19,7 @@ find-executable-or-die() {
   local path_to_bin
   path_to_bin="$(command -v "${@}" | head -1)"
   if [[ -z ${path_to_bin} ]]; then
-    echo "Could not find '${1}', aborting..."
+    echo "Could not find '${1}', aborting..." >&2
     exit 1
   fi
   echo "Found: ${path_to_bin}" >&2
