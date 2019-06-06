@@ -71,6 +71,7 @@ runner-master-init() {
     ## Handle error
     if [[ ${msg_command} == 'error' ]]; then
       runner-master-exit "${msg_args[0]}"
+      return "${msg_args[0]}"
     fi
   done
   runner-master-exit 0
