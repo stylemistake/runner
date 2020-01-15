@@ -18,8 +18,8 @@ declare -a runner_args=("${@}")
 ## All flags are then passed on to tasks.
 ## E.g. --production
 ## NOTE: The actual splitting is done in runner_bootstrap.
-declare -a runner_flags
-declare -a runner_tasks
+declare -a runner_flags=()
+declare -a runner_tasks=()
 
 ## Logs a message with a timestamp
 runner_log() {
@@ -164,7 +164,7 @@ runner_run_task() {
   local task_color="$(runner_colorize cyan "${1}")"
   runner_log "Starting '${task_color}'..."
   local -i time_start="$(runner_time)"
-  "task_${1}" "${runner_flags[@]}"
+  "task_${1}" "${runner_flags[@]+"${runner_flags[@]}"}"
   local exit_code=${?}
   local -i time_end="$(runner_time)"
   local time_diff="$(runner_pretty_ms $((time_end - time_start)))"
@@ -213,8 +213,7 @@ runner_bootstrap() {
   ## Clear a trap we set up earlier
   trap - EXIT
   ## Parse arguments
-  local runner_tasks=()
-  for arg in "${runner_args[@]}"; do
+  for arg in "${runner_args[@]+"${runner_args[@]}"}"; do
     if [[ ${arg} == -* ]]; then
       runner_flags+=("${arg}")
     else
