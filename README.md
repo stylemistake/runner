@@ -2,7 +2,6 @@
 
 [![Travis](https://travis-ci.org/stylemistake/runner.svg)][travis]
 [![NPM](https://badge.fury.io/js/bash-task-runner.svg)][npm]
-[![Gitter](https://badges.gitter.im/stylemistake/bash-task-runner.svg)][gitter]
 
 > A simple, lightweight task runner for Bash.
 
