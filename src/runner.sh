@@ -147,7 +147,7 @@ runner_is_defined() {
 
 runner_is_task_defined() {
   for task in "${@}"; do
-    runner_is_defined "task_${task}" || return
+    runner_is_defined "task_${task}" || return 1
   done
 }
 
@@ -179,9 +179,9 @@ runner_run_task() {
 
 ## Run tasks sequentially.
 runner_sequence() {
-  runner_is_task_defined_verbose "${@}" || return
+  runner_is_task_defined_verbose "${@}" || return "${?}"
   for task in "${@}"; do
-    runner_run_task "${task}" || return
+    runner_run_task "${task}" || return "${?}"
   done
 }
 
