@@ -109,7 +109,8 @@ if ((BASH_VERSINFO[0] >= 4)); then
   )
 
   runner_colorize() {
-    echo "${runner_colors[$1]}${*:2}${runner_colors[reset]}"
+    message=("${@:2}")
+    (IFS=" "; echo "${runner_colors[$1]}${message[*]}${runner_colors[reset]}")
   }
 else
   runner_colorize() {
